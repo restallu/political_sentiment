@@ -137,10 +137,5 @@ try:
 except Exception as e:
     st.error(f"Error al cargar el archivo: {str(e)}")  
     
-if model is None:
-    st.error("No se pudo cargar el modelo. Por favor, verifica la ruta y el archivo.")
-    st.stop()
-if tokenizer is None:
-    st.error('No se puede cargar el tokenizador')
-    st.stop()
+
 printHeader(model,tokenizer)
