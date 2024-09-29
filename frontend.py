@@ -2,7 +2,8 @@ import streamlit as st
 import pickle
 import torch
 import time 
-url="https://drive.google.com/file/d/19bmJ0Kp5-91sEIgpyyqHjxvowjo1w6FA/view?usp=sharing"
+urlm="https://drive.google.com/file/d/19bmJ0Kp5-91sEIgpyyqHjxvowjo1w6FA/view?usp=sharing"
+urlt="https://drive.google.com/drive/folders/1U6RMj0-rIqwFS7ClaA0jeFlPefuv-MlM?usp=sharing"
 MAX_SEQ=400 
 import io
 import requests
@@ -125,14 +126,17 @@ def printHeader(model,tokenizer):
 
 try:
     # Descargar y cargar el archivo pickle
-     model = descargar_pickle(url)
+     model = descargar_pickle(urlm)
 
 except Exception as e:
     st.error(f"Error al cargar el archivo: {str(e)}")           
 
-with open('./tpick.pkl', 'rb') as file:
-    tokenizer=pickle.load(file)
-    file.close()
+try:
+    # Descargar y cargar el archivo pickle tokenizer
+    tokenizer = descargar_pickle(urlt)
+except Exception as e:
+    st.error(f"Error al cargar el archivo: {str(e)}")  
+    
 if model is None:
     st.error("No se pudo cargar el modelo. Por favor, verifica la ruta y el archivo.")
     st.stop()
