@@ -126,16 +126,13 @@ def printHeader(model,tokenizer):
 
 try:
     # Descargar y cargar el archivo pickle
-     model = descargar_pickle(urlm)
-
+    model = descargar_pickle(urlm)
+    tokenizer = descargar_pickle(urlt)
+    printHeader(model,tokenizer)
 except Exception as e:
     st.error(f"Error al cargar el archivo: {str(e)}")           
 
-try:
-    # Descargar y cargar el archivo pickle tokenizer
-    tokenizer = descargar_pickle(urlt)
-except Exception as e:
-    st.error(f"Error al cargar el archivo: {str(e)}")  
+
     
 
-printHeader(model,tokenizer)
+
