@@ -130,7 +130,7 @@ try:
 except Exception as e:
     st.error(f"Error al cargar el archivo: {str(e)}")           
 
-with open('tpick.pkl', 'rb') as file:
+with open('./tpick.pkl', 'rb') as file:
     tokenizer=pickle.load(file)
     file.close()
 if model is None:
