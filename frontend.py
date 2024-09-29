@@ -3,8 +3,31 @@ import pickle
 import torch
 import time 
 rutaRaiz='C:\\Master BD ENyD\\10-TFM\\'
-MAX_SEQ=300 
+url="https://drive.google.com/file/d/19bmJ0Kp5-91sEIgpyyqHjxvowjo1w6FA/view?usp=sharing"
+MAX_SEQ=400 
+import io
+import requests
 
+def formatContent(textoLargo):
+    textoLargoWords=textoLargo.split()
+    textoLargoLista=[]
+    while len(textoLargoWords)>=MAX_SEQ: 
+        textoLargoLista.append(' '.join(textoLargoWords[:MAX_SEQ-1])) 
+        textoLargoWords=textoLargoWords[MAX_SEQ:]
+    textoLargoLista.append(' '.join(textoLargoWords))
+    return textoLargoLista
+    
+def descargar_y_cargar_pickle(url):
+    response = requests.get(url)
+    if response.status_code == 200:
+        content = response.content
+        bytes_io = io.BytesIO(content)
+        return pickle.load(bytes_io)
+    else:
+        raise Exception(f"No se pudo descargar el archivo. Código de estado: {response.status_code}")
+
+
+        
 def spinnerWidget(model,tokenizer,text_area):
      with st.spinner('La frase tiene un sentimiento de.... '):    
         if torch.cuda.is_available():
@@ -31,8 +54,9 @@ def printHeader(model,tokenizer):
     
     st.title('Interface de Usuario para Text Classification')
     st.text('''A continuación tiene un espacio para escribir un texto de 
-    hasta 500 palabras. Una vez escrito pulse sobre el botón asociado y el sistema 
-    predecirá un sentimiento político siginificando 0 izquierda y 1 derecha''')
+    hasta 3000 caracteres (unas 500 palabras). Una vez escrito pulse sobre el botón asociado y el sistema 
+    predecirá un sentimiento político siginificando 0 izquierda y 1 derecha. En el caso de que el texto sea más largo 
+    suba un fichero en formato txt''')
 
     # Using the "with" syntax
     with st.form(key='my_form'):
@@ -46,8 +70,25 @@ def printHeader(model,tokenizer):
     if submitted:
         #model=loadModel(rutaRaiz+'modelo/llm_model_ft.sav')
         spinnerWidget(model,tokenizer,text_area)
+    st.markdown("""
+    <style>
+    .uploadfile {
+        display: inline-block;
+        background-color: #4CAF50;
+        color: white;
+        padding: 0.5rem;
+        font-family: sans-serif;
+        border-radius: 0.3rem;
+        cursor: pointer;
+        margin-top: 1rem;
+    }
+    </style>
+""", unsafe_allow_html=True)
+ 
 
-    uploaded_file = st.file_uploader("Elige un archivo", type=["txt", "csv", "pdf"])
+    uploaded_file = st.file_uploader("", type=["txt", "csv", "pdf"],key="txt_uploader")
+    st.markdown('<label for="txt_uploader" class="uploadfile">Cargar archivo pickle</label>', unsafe_allow_html=True)
+    
     if uploaded_file is not None:
     # Verifica el tamaño del archivo
         file_size = uploaded_file.size  # Tamaño en bytes
@@ -60,16 +101,39 @@ def printHeader(model,tokenizer):
             texto = ""
     # Leemos el contenido del archivo
             contenido = uploaded_file.getvalue().decode('utf-8')
-            for line in contenido.splitlines():
-                 texto += line + "\n"
+            contenidoList=formatContent(contenido)
+            derecha=0
+            izquierda=0
+            for contenido in contenidoList:
+                for line in contenido.splitlines():
+                    texto += line + "\n"
+                resultado=predict(model,tokenizer,texto)   
+                if resultado == 1:
+                    derecha+=1
+                else: 
+                    izquierda+=1
             text_area=st.text_area("Contenido del archivo:", texto, height=300)
+            if derecha>izquierda:
+                st.text('Derecha')
+            elif derecha<izquierda:
+                st.text('Izquierda')
+            else:
+                st.text('Para ti albert rivera era el nuevo Kennedy. Pero le perdió la cabeza')
             #resultado = predict(model,tokenizer,contenido)
             #st.text(resultado)
-            spinnerWidget(model,tokenizer,text_area)
+            #spinnerWidget(model,tokenizer,text_area)
             
-with open(rutaRaiz+'modelo\\roberta_model\\mpick.pkl', 'rb') as file:
-    model= pickle.load(file)
-    file.close()
+try:
+    # Descargar y cargar el archivo pickle
+     model = descargar_y_cargar_pickle(url)
+
+        #st.write("Archivo cargado exitosamente")
+        #st.write(f"Tipo de datos: {type(data)}")
+    
+    # Aquí puedes procesar o mostrar 'data' según tus necesidades
+except Exception as e:
+    st.error(f"Error al cargar el archivo: {str(e)}")           
+
 with open(rutaRaiz+'modelo\\roberta_model\\tpick.pkl', 'rb') as file:
     tokenizer=pickle.load(file)
     file.close()
