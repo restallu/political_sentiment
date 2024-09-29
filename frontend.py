@@ -2,8 +2,8 @@ import streamlit as st
 import pickle
 import torch
 import time 
-rutaRaiz='C:\\Master BD ENyD\\10-TFM\\'
-url="https://drive.google.com/file/d/19bmJ0Kp5-91sEIgpyyqHjxvowjo1w6FA/view?usp=sharing"
+urlm="https://drive.google.com/file/d/19bmJ0Kp5-91sEIgpyyqHjxvowjo1w6FA/view?usp=sharing"
+urlt="https://drive.google.com/drive/folders/1U6RMj0-rIqwFS7ClaA0jeFlPefuv-MlM?usp=sharing"
 MAX_SEQ=400 
 import io
 import requests
@@ -17,7 +17,7 @@ def formatContent(textoLargo):
     textoLargoLista.append(' '.join(textoLargoWords))
     return textoLargoLista
     
-def descargar_y_cargar_pickle(url):
+def descargar_pickle(url):
     response = requests.get(url)
     if response.status_code == 200:
         content = response.content
@@ -58,7 +58,6 @@ def printHeader(model,tokenizer):
     predecirá un sentimiento político siginificando 0 izquierda y 1 derecha. En el caso de que el texto sea más largo 
     suba un fichero en formato txt''')
 
-    # Using the "with" syntax
     with st.form(key='my_form'):
         #text_input = st.text_input(label='Enter some text',max_chars=600)
         text_area= st.text_area (
@@ -70,6 +69,8 @@ def printHeader(model,tokenizer):
     if submitted:
         #model=loadModel(rutaRaiz+'modelo/llm_model_ft.sav')
         spinnerWidget(model,tokenizer,text_area)
+
+    
     st.markdown("""
     <style>
     .uploadfile {
@@ -105,6 +106,7 @@ def printHeader(model,tokenizer):
             derecha=0
             izquierda=0
             for contenido in contenidoList:
+                texto=""
                 for line in contenido.splitlines():
                     texto += line + "\n"
                 resultado=predict(model,tokenizer,texto)   
@@ -112,6 +114,7 @@ def printHeader(model,tokenizer):
                     derecha+=1
                 else: 
                     izquierda+=1
+            texto+=f'Izquierda={izquierda} Derecha={derecha}'
             text_area=st.text_area("Contenido del archivo:", texto, height=300)
             if derecha>izquierda:
                 st.text('Derecha')
@@ -120,24 +123,16 @@ def printHeader(model,tokenizer):
             else:
                 st.text('Para ti albert rivera era el nuevo Kennedy. Pero le perdió la cabeza')
             #resultado = predict(model,tokenizer,contenido)
-            #st.text(resultado)
-            #spinnerWidget(model,tokenizer,text_area)
-            
+
 try:
     # Descargar y cargar el archivo pickle
-     model = descargar_y_cargar_pickle(url)
-
-        #st.write("Archivo cargado exitosamente")
-        #st.write(f"Tipo de datos: {type(data)}")
-    
-    # Aquí puedes procesar o mostrar 'data' según tus necesidades
+    model = descargar_pickle(urlm)
+    tokenizer = descargar_pickle(urlt)
+    printHeader(model,tokenizer)
 except Exception as e:
     st.error(f"Error al cargar el archivo: {str(e)}")           
 
-with open(rutaRaiz+'modelo\\roberta_model\\tpick.pkl', 'rb') as file:
-    tokenizer=pickle.load(file)
-    file.close()
-if model is None:
-    st.error("No se pudo cargar el modelo. Por favor, verifica la ruta y el archivo.")
-    st.stop()
-printHeader(model,tokenizer)
+
+    
+
+

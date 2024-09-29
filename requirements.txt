@@ -1,4 +1,3 @@
 torch
-time 
-io
-requests
+request
+transformers
