@@ -101,7 +101,7 @@ def printHeader(model,tokenizer):
                     resultadotxt='IZQUIERDA'
                 else:
                     resultadotxt='Para ti albert rivera era el nuevo Kennedy. Pero le perdió la cabeza'
-               st.success(resultadotxt)
+                st.success(resultadotxt)
                 
 
 f1='./modelorob.pth'
