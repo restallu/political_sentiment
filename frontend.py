@@ -1,16 +1,10 @@
 import streamlit as st 
-import pickle
 import torch
 import time 
-urlm="https://drive.google.com/file/d/1y4JI6ECzOs5E2vDs2JA8bsw-kk-iOgMW/view?usp=sharing"
 MAX_SEQ=400 
 PCMIN=0.4 #Porcentaje mínimo de la seq_max para que sea analizado
-import io
-import requests
-import urllib.request
-from transformers import RobertaForSequenceClassification
-PRE_TRAINED_MODEL_NAME='PlanTL-GOB-ES/roberta-base-bne'
-rutaRaiz="C:\\Master BD ENyD\\10-TFM"
+
+
 
 def formatContent(textoLargo):
     textoLargoWords=textoLargo.split()
@@ -25,11 +19,6 @@ def formatContent(textoLargo):
     
 def spinnerWidget(model,tokenizer,text_area):
      with st.spinner('La frase tiene un sentimiento de.... '):    
-        if torch.cuda.is_available():
-            device = torch.device("cpu")
-            model.to(device)
-        else:
-            device = torch.device("cpu")
         resultado=predict(model,tokenizer,text_area)
         if resultado == 0:
             texto1='Izquierda'
@@ -43,19 +32,17 @@ def predict(model,tokenizer, input_text):
     inputs = tokenizer(input_text, return_tensors="pt", padding='max_length', truncation=True,max_length=MAX_SEQ)
     outputs = model(**inputs)
     logits = outputs.logits
-    st.text(logits)
     _, preds = torch.max(logits, 1)
-    st.text(preds)
     return preds.item()
 
 def printHeader(model,tokenizer):
     
     st.title('Interface de Usuario para Text Classification')
     st.text(
-    '''A continuación tiene un espacio para escribir un texto de hasta 3000 caracteres 
-    (unas 500 palabras).  Una vez escrito pulse sobre el botón asociado y el sistema 
-    predecirá un sentimiento político siginificando 0 izquierda y 1 derecha. 
-    En el caso de que el texto sea más largo suba un fichero en formato txt''')
+    '''   A continuación tiene un espacio para escribir un texto de hasta 3000  
+    caracteres nas 500 palabras).  Una vez escrito pulse sobre el botón asociado 
+    y el sistema  predecirá un sentimiento político siginificando 0 izquierda y 
+    1 derecha. En el caso de que el texto sea más largo suba un fichero en formato txt''')
 
     with st.form(key='my_form'):
         #text_input = st.text_input(label='Enter some text',max_chars=600)
