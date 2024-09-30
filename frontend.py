@@ -104,7 +104,7 @@ def printHeader(model,tokenizer):
 
 
 f1='./modelorob.pth'
-modelo=torch.load(f1,map_location=torch.device('cpu'))
+modelo=torch.load(f1,map_location=torch.device('cpu'),weights_only=True)
 f2='tokrob.pth'
 tokenizer=torch.load(f2)
 modelo.eval()
