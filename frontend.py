@@ -55,9 +55,21 @@ def printHeader(model,tokenizer):
     if submitted:
         spinnerWidget(model,tokenizer,text_area)
 
-
+    
     uploaded_file = st.file_uploader("", type=["txt", "csv", "pdf"])
- 
+    st.markdown("""
+            <style>
+            div[data-testid="stFileUploadDropzone"] > div > small {
+            visibility: visible;
+            }
+
+        div[data-testid="stFileUploaderDropzoneInstructions"] > div > small::before {
+        visibility: visible;
+        content: "Límite de 10K por archivo";
+        }
+        </style>
+        """, unsafe_allow_html=True)
+    
     if uploaded_file is not None:
     # Verifica el tamaño del archivo
         file_size = uploaded_file.size  # Tamaño en bytes
@@ -73,32 +85,33 @@ def printHeader(model,tokenizer):
             contenidoList=formatContent(contenido)
             derecha=0
             izquierda=0
-            for contenido in contenidoList:
-                texto=""
-                for line in contenido.splitlines():
-                    texto += line + "\n"
-                resultado=predict(model,tokenizer,texto)   
-                if resultado == 1:
-                    derecha+=1
-                elif resultado==0: 
-                    izquierda+=1
+            with st.spinner('La frase tiene un sentimiento de.... '):  
+                for contenido in contenidoList:
+                    texto=""
+                    for line in contenido.splitlines():
+                        texto += line + "\n"
+                    resultado=predict(model,tokenizer,texto)   
+                    if resultado == 1:
+                        derecha+=1
+                    elif resultado==0: 
+                        izquierda+=1
+                    else:
+                        assert 0
+                texto+=f'Izquierda={izquierda} Derecha={derecha}'
+                if derecha+izquierda>1: #Se  divide  el  texto en bloques
+                    texto="Se muestra el ultimo bloque solamente\n"+texto
+                text_area=st.text_area("Contenido del archivo:", texto, height=300)
+                if derecha>izquierda:
+                    resultadotxt='DERECHA'
+                elif derecha<izquierda:
+                    resultadotxt='IZQUIERDA'
                 else:
-                    assert 0
-            texto+=f'Izquierda={izquierda} Derecha={derecha}'
-            if derecha+izquierda>1: #Se  divide  el  texto en bloques
-                texto="Se muestra el ultimo bloque solamente\n"+texto
-            text_area=st.text_area("Contenido del archivo:", texto, height=300)
-            if derecha>izquierda:
-                st.text('Derecha')
-            elif derecha<izquierda:
-                st.text('Izquierda')
-            else:
-                st.text('Para ti albert rivera era el nuevo Kennedy. Pero le perdió la cabeza')
-           
-
+                    resultadotxt='Para ti albert rivera era el nuevo Kennedy. Pero le perdió la cabeza'
+                st.success(resultadotxt)
+                
 
 f1='./modelorob.pth'
-modelo=torch.load(f1,map_location=torch.device('cpu'))
+modelo=torch.load(f1,map_location=torch.device('cpu'),weights_only=False)
 f2='tokrob.pth'
 tokenizer=torch.load(f2)
 modelo.eval()
