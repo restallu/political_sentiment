@@ -22,33 +22,7 @@ def formatContent(textoLargo):
         textoLargoLista.append(' '.join(textoLargoWords))
     return textoLargoLista
     
-def descargar_url(url):
-    response = requests.get(url)
-    if response.status_code == 200:
-        contenido = response.content
-        bytes_io = io.BytesIO(contenido)
-        st.write('descargando')
-        #return torch.load(bytes_io,map_location=torch.device('cpu'))
-        return torch.hub.load_state_dict_from_url()
-    else:
-        raise Exception(f"No se pudo descargar el archivo. Código de estado: {response.status_code}")
     
-def read_remote_url(url):   
-    max_bytes = 2**31 - 1
-    bytes_in = bytearray()
-    
-    with urllib.request.urlopen(url) as response:
-        while True:
-            chunk = response.read(max_bytes)
-            if not chunk:
-                break
-            bytes_in += chunk
-    bytes_io = io.BytesIO(bytes_in)
-    return bytes_io
-    #return torch.load(bytes_io,map_location=torch.device('cpu'))
-
-    
-     
 def spinnerWidget(model,tokenizer,text_area):
      with st.spinner('La frase tiene un sentimiento de.... '):    
         if torch.cuda.is_available():
@@ -57,18 +31,21 @@ def spinnerWidget(model,tokenizer,text_area):
         else:
             device = torch.device("cpu")
         resultado=predict(model,tokenizer,text_area)
-        if resultado == 1:
-            texto1='Derecha'
-        else: 
+        if resultado == 0:
             texto1='Izquierda'
+        elif resultado==1: 
+            texto1='Derecha'
+        else:
+            texto1="Para ti albert rivera era el nuevo Kennedy. Pero le perdió la cabeza"
         st.success(texto1)
 
 def predict(model,tokenizer, input_text):
     inputs = tokenizer(input_text, return_tensors="pt", padding='max_length', truncation=True,max_length=MAX_SEQ)
     outputs = model(**inputs)
-    #outputs=model(inputs)
     logits = outputs.logits
+    st.text(logits)
     _, preds = torch.max(logits, 1)
+    st.text(preds)
     return preds.item()
 
 def printHeader(model,tokenizer):
@@ -116,9 +93,13 @@ def printHeader(model,tokenizer):
                 resultado=predict(model,tokenizer,texto)   
                 if resultado == 1:
                     derecha+=1
-                else: 
+                elif resultado==0: 
                     izquierda+=1
+                else:
+                    assert 0
             texto+=f'Izquierda={izquierda} Derecha={derecha}'
+            if derecha+izquierda>1: #Se  divide  el  texto en bloques
+                texto="Se muestra el ultimo bloque solamente\n"+texto
             text_area=st.text_area("Contenido del archivo:", texto, height=300)
             if derecha>izquierda:
                 st.text('Derecha')
@@ -126,16 +107,12 @@ def printHeader(model,tokenizer):
                 st.text('Izquierda')
             else:
                 st.text('Para ti albert rivera era el nuevo Kennedy. Pero le perdió la cabeza')
-            #resultado = predict(model,tokenizer,contenido)
+           
 
-#f1=rutaRaiz+'\\modelo\\roberta_model\\modelorob.pth'
-f1=rutaRaiz+'\\modelo\\roberta_model\\modelstatedict.pth'
-#modelo=torch.load(f1, map_location=torch.device('cpu'))
 
-modelo=RobertaForSequenceClassification.from_pretrained(PRE_TRAINED_MODEL_NAME)
-state_dict=torch.hub.load_state_dict_from_url(urlm, map_location=torch.device('cpu'), check_hash=True)
-modelo.load_state_dict(state_dict)
-f2=rutaRaiz+'\\modelo\\roberta_model\\tokrob.pth'
+f1='./modelorob.pth'
+modelo=torch.load(f1,map_location=torch.device('cpu'))
+f2='tokrob.pth'
 tokenizer=torch.load(f2)
 modelo.eval()
 printHeader(modelo,tokenizer)
