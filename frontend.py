@@ -66,11 +66,11 @@ def printHeader(model,tokenizer):
     st.markdown("""
             <style>
             div[data-testid="stFileUploadDropzone"] > div > small {
-            visibility: hidden;
+            visibility: visible;
             }
 
         div[data-testid="stFileUploaderDropzoneInstructions"] > div > small::before {
-        visibility: visible;
+        visibility: hidden;
         content: "Límite de 10K por archivo";
         }
         </style>
