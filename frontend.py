@@ -2,11 +2,15 @@ import streamlit as st
 import pickle
 import torch
 import time 
-urlm="https://drive.google.com/file/d/19bmJ0Kp5-91sEIgpyyqHjxvowjo1w6FA/view?usp=sharing"
-urlt="https://drive.google.com/drive/folders/1U6RMj0-rIqwFS7ClaA0jeFlPefuv-MlM?usp=sharing"
+urlm="https://drive.google.com/file/d/1y4JI6ECzOs5E2vDs2JA8bsw-kk-iOgMW/view?usp=sharing"
 MAX_SEQ=400 
+PCMIN=0.4 #Porcentaje mínimo de la seq_max para que sea analizado
 import io
 import requests
+import urllib.request
+from transformers import RobertaForSequenceClassification
+PRE_TRAINED_MODEL_NAME='PlanTL-GOB-ES/roberta-base-bne'
+rutaRaiz="C:\\Master BD ENyD\\10-TFM"
 
 def formatContent(textoLargo):
     textoLargoWords=textoLargo.split()
@@ -14,20 +18,37 @@ def formatContent(textoLargo):
     while len(textoLargoWords)>=MAX_SEQ: 
         textoLargoLista.append(' '.join(textoLargoWords[:MAX_SEQ-1])) 
         textoLargoWords=textoLargoWords[MAX_SEQ:]
-    textoLargoLista.append(' '.join(textoLargoWords))
+    if len(textoLargoWords)>MAX_SEQ*PCMIN:
+        textoLargoLista.append(' '.join(textoLargoWords))
     return textoLargoLista
     
-def descargar_pickle(url):
+def descargar_url(url):
     response = requests.get(url)
     if response.status_code == 200:
-        content = response.content
-        bytes_io = io.BytesIO(content)
-        return pickle.load(bytes_io)
+        contenido = response.content
+        bytes_io = io.BytesIO(contenido)
+        st.write('descargando')
+        #return torch.load(bytes_io,map_location=torch.device('cpu'))
+        return torch.hub.load_state_dict_from_url()
     else:
         raise Exception(f"No se pudo descargar el archivo. Código de estado: {response.status_code}")
+    
+def read_remote_url(url):   
+    max_bytes = 2**31 - 1
+    bytes_in = bytearray()
+    
+    with urllib.request.urlopen(url) as response:
+        while True:
+            chunk = response.read(max_bytes)
+            if not chunk:
+                break
+            bytes_in += chunk
+    bytes_io = io.BytesIO(bytes_in)
+    return bytes_io
+    #return torch.load(bytes_io,map_location=torch.device('cpu'))
 
-
-        
+    
+     
 def spinnerWidget(model,tokenizer,text_area):
      with st.spinner('La frase tiene un sentimiento de.... '):    
         if torch.cuda.is_available():
@@ -53,10 +74,11 @@ def predict(model,tokenizer, input_text):
 def printHeader(model,tokenizer):
     
     st.title('Interface de Usuario para Text Classification')
-    st.text('''A continuación tiene un espacio para escribir un texto de 
-    hasta 3000 caracteres (unas 500 palabras). Una vez escrito pulse sobre el botón asociado y el sistema 
-    predecirá un sentimiento político siginificando 0 izquierda y 1 derecha. En el caso de que el texto sea más largo 
-    suba un fichero en formato txt''')
+    st.text(
+    '''A continuación tiene un espacio para escribir un texto de hasta 3000 caracteres 
+    (unas 500 palabras).  Una vez escrito pulse sobre el botón asociado y el sistema 
+    predecirá un sentimiento político siginificando 0 izquierda y 1 derecha. 
+    En el caso de que el texto sea más largo suba un fichero en formato txt''')
 
     with st.form(key='my_form'):
         #text_input = st.text_input(label='Enter some text',max_chars=600)
@@ -67,29 +89,11 @@ def printHeader(model,tokenizer):
             max_chars=3000)
         submitted = st.form_submit_button(label='Submit')
     if submitted:
-        #model=loadModel(rutaRaiz+'modelo/llm_model_ft.sav')
         spinnerWidget(model,tokenizer,text_area)
 
-    
-    st.markdown("""
-    <style>
-    .uploadfile {
-        display: inline-block;
-        background-color: #4CAF50;
-        color: white;
-        padding: 0.5rem;
-        font-family: sans-serif;
-        border-radius: 0.3rem;
-        cursor: pointer;
-        margin-top: 1rem;
-    }
-    </style>
-""", unsafe_allow_html=True)
- 
 
-    uploaded_file = st.file_uploader("", type=["txt", "csv", "pdf"],key="txt_uploader")
-    st.markdown('<label for="txt_uploader" class="uploadfile">Cargar archivo pickle</label>', unsafe_allow_html=True)
-    
+    uploaded_file = st.file_uploader("", type=["txt", "csv", "pdf"])
+ 
     if uploaded_file is not None:
     # Verifica el tamaño del archivo
         file_size = uploaded_file.size  # Tamaño en bytes
@@ -124,15 +128,14 @@ def printHeader(model,tokenizer):
                 st.text('Para ti albert rivera era el nuevo Kennedy. Pero le perdió la cabeza')
             #resultado = predict(model,tokenizer,contenido)
 
-try:
-    # Descargar y cargar el archivo pickle
-    model = descargar_pickle(urlm)
-    tokenizer = descargar_pickle(urlt)
-    printHeader(model,tokenizer)
-except Exception as e:
-    st.error(f"Error al cargar el archivo: {str(e)}")           
+#f1=rutaRaiz+'\\modelo\\roberta_model\\modelorob.pth'
+f1=rutaRaiz+'\\modelo\\roberta_model\\modelstatedict.pth'
+#modelo=torch.load(f1, map_location=torch.device('cpu'))
 
-
-    
-
-
+modelo=RobertaForSequenceClassification.from_pretrained(PRE_TRAINED_MODEL_NAME)
+state_dict=torch.hub.load_state_dict_from_url(urlm, map_location=torch.device('cpu'), check_hash=True)
+modelo.load_state_dict(state_dict)
+f2=rutaRaiz+'\\modelo\\roberta_model\\tokrob.pth'
+tokenizer=torch.load(f2)
+modelo.eval()
+printHeader(modelo,tokenizer)
