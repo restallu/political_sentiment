@@ -45,7 +45,7 @@ def printHeader(model,tokenizer):
     
     st.title('Interface de Usuario para Text Classification')
     st.text(
-    '''   A continuación tiene un espacio para escribir un texto de hasta 3000 caracteres 
+    '''    A continuación tiene un espacio para escribir un texto de hasta 3000 caracteres 
     (unas 500 palabras).  Una vez escrito pulse sobre el botón asociado y el sistema 
     predecirá un sentimiento político siginificando 0 izquierda y 1 derecha. 
     En el caso de que el texto sea más largo suba un fichero en formato txt''')
