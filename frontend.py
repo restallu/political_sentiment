@@ -63,7 +63,19 @@ def printHeader(model,tokenizer):
 
     
     uploaded_file = st.file_uploader("", type=["txt", "csv", "pdf"])
- 
+    st.markdown("""
+            <style>
+            div[data-testid="stFileUploadDropzone"] > div > small {
+            visibility: hidden;
+            }
+
+        div[data-testid="stFileUploadDropzone"] > div > small::before {
+        visibility: visible;
+        content: "Límite de 10K por archivo";
+        }
+        </style>
+        """, unsafe_allow_html=True)
+    
     if uploaded_file is not None:
     # Verifica el tamaño del archivo
         file_size = uploaded_file.size  # Tamaño en bytes
