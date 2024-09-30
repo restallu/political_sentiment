@@ -2,15 +2,8 @@ import streamlit as st
 import pickle
 import torch
 import time 
-urlm="https://drive.google.com/file/d/1y4JI6ECzOs5E2vDs2JA8bsw-kk-iOgMW/view?usp=sharing"
 MAX_SEQ=400 
 PCMIN=0.4 #Porcentaje mínimo de la seq_max para que sea analizado
-import io
-import requests
-import urllib.request
-from transformers import RobertaForSequenceClassification
-PRE_TRAINED_MODEL_NAME='PlanTL-GOB-ES/roberta-base-bne'
-rutaRaiz="C:\\Master BD ENyD\\10-TFM"
 
 def formatContent(textoLargo):
     textoLargoWords=textoLargo.split()
@@ -52,7 +45,7 @@ def printHeader(model,tokenizer):
     
     st.title('Interface de Usuario para Text Classification')
     st.text(
-    '''A continuación tiene un espacio para escribir un texto de hasta 3000 caracteres 
+    '''   A continuación tiene un espacio para escribir un texto de hasta 3000 caracteres 
     (unas 500 palabras).  Una vez escrito pulse sobre el botón asociado y el sistema 
     predecirá un sentimiento político siginificando 0 izquierda y 1 derecha. 
     En el caso de que el texto sea más largo suba un fichero en formato txt''')
