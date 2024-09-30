@@ -70,7 +70,7 @@ def printHeader(model,tokenizer):
             }
 
         div[data-testid="stFileUploaderDropzoneInstructions"] > div > small::before {
-        visibility: hidden;
+        visibility: visible;
         content: "Límite de 10K por archivo";
         }
         </style>
