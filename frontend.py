@@ -12,7 +12,6 @@ import numpy as np
 df=pd.read_excel('./frases.xlsx')              
 df.columns=["lr","score","texto"]
 
-print(df)
 
 def getResultadoTxt(df,lr='C',score=1):
     dfaux=df[(df.lr==lr) & (df.score==score)]
