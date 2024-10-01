@@ -56,26 +56,14 @@ def printHeader(model,tokenizer):
         spinnerWidget(model,tokenizer,text_area)
 
     
-    uploaded_file = st.file_uploader("", type=["txt", "csv", "pdf"])
-    st.markdown("""
-            <style>
-            div[data-testid="stFileUploadDropzone"] > div > small {
-            visibility: visible;
-            }
-
-        div[data-testid="stFileUploaderDropzoneInstructions"] > div > small::before {
-        visibility: visible;
-        content: "Límite de 10K por archivo";
-        }
-        </style>
-        """, unsafe_allow_html=True)
+    uploaded_file = st.file_uploader(label="", type=["txt"],label_visibility="hidden")
     
     if uploaded_file is not None:
     # Verifica el tamaño del archivo
         file_size = uploaded_file.size  # Tamaño en bytes
-        max_size = 10 * 1024  # 10K MB en bytes
+        max_size =  1024 * 1024 # 1 MB en bytes
         if file_size > max_size:
-            st.error(f"El archivo excede el tamaño máximo permitido de 10K. Tamaño actual:\
+            st.error(f"El archivo excede el tamaño máximo permitido de 1 MB. Tamaño actual:\
                 {file_size / (1024):.2f} KB")
         else:
             # Lee el contenido del archivo
