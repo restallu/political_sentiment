@@ -3,8 +3,21 @@ import torch
 import time 
 MAX_SEQ=400 
 PCMIN=0.4 #Porcentaje mínimo de la seq_max para que sea analizado
+import openpyxl
+import pandas as pd
+import random
+import numpy as np
 
+#Leer excel
+df=pd.read_excel('./frases.xlsx')              
+df.columns=["lr","score","texto"]
 
+print(df)
+
+def getResultadoTxt(df,lr='C',score=1):
+    dfaux=df[(df.lr==lr) & (df.score==score)]
+    i=int(np.floor(len(dfaux)*random.random()))
+    return dfaux.iloc[i].texto
 
 def formatContent(textoLargo):
     textoLargoWords=textoLargo.split()
@@ -21,11 +34,11 @@ def spinnerWidget(model,tokenizer,text_area):
      with st.spinner('La frase tiene un sentimiento de.... '):    
         resultado=predict(model,tokenizer,text_area)
         if resultado == 0:
-            texto1='Izquierda'
+            texto1=getResultadoTxt(df,'L',999)
         elif resultado==1: 
-            texto1='Derecha'
+            texto1=getResultadoTxt(df,'R',999)
         else:
-            texto1="Para ti albert rivera era el nuevo Kennedy. Pero le perdió la cabeza"
+            texto1=getResultadoTxt(df)
         st.success(texto1)
 
 def predict(model,tokenizer, input_text):
@@ -89,18 +102,24 @@ def printHeader(model,tokenizer):
                 if derecha+izquierda>1: #Se  divide  el  texto en bloques
                     texto="Se muestra el ultimo bloque solamente\n"+texto
                 text_area=st.text_area("Contenido del archivo:", texto, height=300)
-                if derecha>izquierda:
-                    resultadotxt='DERECHA'
-                elif derecha<izquierda:
-                    resultadotxt='IZQUIERDA'
+                if derecha==0:
+                    resultadotxt=getResultadoTxt(df,'L',999)
+                elif izquierda==0:
+                    resultadotxt=getResultadoTxt(df,'D',999)
                 else:
-                    resultadotxt='Para ti albert rivera era el nuevo Kennedy. Pero le perdió la cabeza'
+                    if derecha>izquierda:
+                        resultadotxt=getResultadoTxt(df,'D',int(derecha/izquierda))
+                    elif derecha<izquierda:
+                        resultadotxt=getResultadoTxt(df,'L',int(izquierda/derecha))
+                    else:
+                        resultadotxt=getResultadoTxt(df)
                 st.success(resultadotxt)
-                
+
+
 
 f1='./modelorob.pth'
-modelo=torch.load(f1,map_location=torch.device('cpu'),weights_only=False)
-#modelo=torch.load(f1,map_location=torch.device('cpu'))
+#modelo=torch.load(f1,map_location=torch.device('cpu'),weights_only=False)
+modelo=torch.load(f1,map_location=torch.device('cpu'))
 f2='tokrob.pth'
 tokenizer=torch.load(f2)
 modelo.eval()
