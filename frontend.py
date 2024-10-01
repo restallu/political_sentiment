@@ -68,7 +68,7 @@ def printHeader(model,tokenizer):
         spinnerWidget(model,tokenizer,text_area)
 
     
-    uploaded_file = st.file_uploader(label="", type=["txt"],label_visibility="hidden")
+    uploaded_file = st.file_uploader(label="Upload File", type=["txt"],label_visibility="hidden")
     
     if uploaded_file is not None:
     # Verifica el tamaño del archivo
