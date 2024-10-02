@@ -95,7 +95,7 @@ def predict(model,tokenizer, input_text):
     return preds.item()
 
 def printHeader(model,tokenizer):
-    
+    st.image("Logo_UEMC.png")
     st.title('UNIVERSIDAD EUROPEA MIGUEL DE CERVANTES')
     st.header('MASTER EN GESTIÓN Y ANÁLISIS DE GRANDES VOLÚMENES DE DATOS: BIG DATA')
     st.subheader('PROYECTO FIN DE MASTER')
