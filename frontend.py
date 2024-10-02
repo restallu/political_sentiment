@@ -8,7 +8,8 @@ import pandas as pd
 import random
 import numpy as np
 import matplotlib.pyplot as plt
-
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 #Leer excel
 df=pd.read_excel('./frases.xlsx')              
 df.columns=["lr","score","texto"]
