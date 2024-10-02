@@ -8,7 +8,6 @@ import pandas as pd
 import random
 import numpy as np
 import matplotlib.pyplot as plt
-from transformers import RobertaForSequenceClassification
 
 #Leer excel
 df=pd.read_excel('./frases.xlsx')              
@@ -81,10 +80,13 @@ def spinnerWidget(model,tokenizer,text_area):
         resultado=predict(model,tokenizer,text_area)
         if resultado == 0:        
             texto1=getResultadoTxt(df,'L',999)
+            texto1+='    IZQUIERDA'
         elif resultado==1: 
             texto1=getResultadoTxt(df,'R',999)
+            texto1+='    DERECHA'
         else:
             texto1=getResultadoTxt(df)
+            texto1+='    CENTRO'
         st.success(texto1)
 
 def predict(model,tokenizer, input_text):
@@ -116,7 +118,10 @@ def printHeader(model,tokenizer):
             max_chars=3000)
         submitted = st.form_submit_button(label='Submit')
     if submitted:
-        spinnerWidget(model,tokenizer,text_area)
+        if text_area:
+            spinnerWidget(model,tokenizer,text_area)
+        else:
+            text_area="Debe Introducir un texto"
 
     
     uploaded_file = st.file_uploader(label="Upload File", type=["txt"],label_visibility="hidden")
@@ -133,51 +138,58 @@ def printHeader(model,tokenizer):
             texto = ""
     # Leemos el contenido del archivo
             contenido = uploaded_file.getvalue().decode('utf-8')
-            contenidoList=formatContent(contenido)
-            derecha=0
-            izquierda=0
-            with st.spinner('La frase tiene un sentimiento de.... '):  
-                for contenido in contenidoList:
-                    resultado=predict(model,tokenizer,contenido)   
-                    if resultado == 1:
-                        derecha+=1
-                    elif resultado==0: 
-                        izquierda+=1
+            if contenido:
+                contenidoList=formatContent(contenido)
+                derecha=0
+                izquierda=0
+                with st.spinner('La frase tiene un sentimiento de.... '):  
+                    for contenido in contenidoList:
+                        resultado=predict(model,tokenizer,contenido)   
+                        if resultado == 1:
+                            derecha+=1
+                        elif resultado==0: 
+                            izquierda+=1
+                        else:
+                            assert 0
+                    texto+=f'Izquierda={izquierda} Derecha={derecha}'
+                    if derecha+izquierda>1: #Se  divide  el  texto en bloques
+                        texto="Se muestra el ultimo bloque solamente\n"+texto
+                    text_area=st.text_area("Contenido del archivo:", contenido, height=300)
+                    if derecha==0:
+                        resultadotxt=getResultadoTxt(df,'L',999)
+                    elif izquierda==0:
+                        resultadotxt=getResultadoTxt(df,'R',999)
                     else:
-                        assert 0
-                texto+=f'Izquierda={izquierda} Derecha={derecha}'
-                if derecha+izquierda>1: #Se  divide  el  texto en bloques
-                    texto="Se muestra el ultimo bloque solamente\n"+texto
-                text_area=st.text_area("Contenido del archivo:", contenido, height=300)
-                if derecha==0:
-                    resultadotxt=getResultadoTxt(df,'L',999)
-                elif izquierda==0:
-                    resultadotxt=getResultadoTxt(df,'R',999)
-                else:
-                    if derecha>izquierda:
-                        resultado=1
-                        resultadotxt=getResultadoTxt(df,'R',int(derecha/izquierda))
-                    elif derecha<izquierda:
-                        resultado=0
-                        resultadotxt=getResultadoTxt(df,'L',int(izquierda/derecha))
+                        if derecha>izquierda:
+                            resultado=1
+                            resultadotxt=getResultadoTxt(df,'R',int(derecha/izquierda))
+                            resultadotxt+='   DERECHA'
+                        elif derecha<izquierda:
+                            resultado=0
+                            resultadotxt=getResultadoTxt(df,'L',int(izquierda/derecha))
+                            resultadotxt+='   IZQUIERDA'
+                        else:
+                            resultadotxt=getResultadoTxt(df)
+                            resultadotxt+='   CENTRO'
+                    st.success(resultadotxt)
+           
+                st.write("¿Ha sido correcta la predicción?")
+                feedback=st.feedback("thumbs")
+                if feedback is not None:
+                    if feedback==1:
+                        st.write('Gracias por su feedback')
+                        st.write('Nos complace haber acertado')
+                        actStatistics(feedback,resultado)
+                        plotStatistics()
                     else:
-                        resultado
-                        resultadotxt=getResultadoTxt(df)
-                st.success(resultadotxt)
-        st.write("¿Ha sido correcta la predicción?")
-        feedback=st.feedback("thumbs")
-        if feedback is not None:
-            if feedback==1:
-                st.write('Gracias por su feedback')
-                st.write('Nos complace haber acertado')
-                actStatistics(feedback,resultado)
-                plotStatistics()
-            else:
-                feedback==0
-                st.write('Gracias por su feedback')
-                st.write('Lamentamos haber fallado')
-                actStatistics(feedback,resultado)
-                plotStatistics()
+                        feedback==0
+                        st.write('Gracias por su feedback')
+                        st.write('Lamentamos haber fallado')
+                        actStatistics(feedback,resultado)
+                        plotStatistics()
+                    
+            else:   #if contenido
+                st.text('Debe subir un fichero que tenga contenido')
                 
 def format():
     st.markdown("""
