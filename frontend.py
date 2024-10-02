@@ -7,15 +7,62 @@ import openpyxl
 import pandas as pd
 import random
 import numpy as np
+import matplotlib.pyplot as plt
+from transformers import RobertaForSequenceClassification
 
 #Leer excel
 df=pd.read_excel('./frases.xlsx')              
 df.columns=["lr","score","texto"]
 
+def actStatistics(feedback,resultado):
+    with open("respuestas.txt",'a') as f:
+        f.write(str(feedback)+','+str(resultado)+'\n')
+        f.close()
+        
+def plotStatistics():
+    df=pd.read_csv('respuestas.txt')
+    df.columns=['feedback','resultado']
+    # Calcular los porcentajes
+    total = len(df)
+    porcentaje_unos = (df['feedback'].sum() / total) * 100
+    porcentaje_ceros = 100 - porcentaje_unos
 
+    # Crear la gráfica
+    fig, ax = plt.subplots(figsize=(6, 3))
+
+    # Datos para la gráfica
+    categorias = ['Predicción correcta', 'Predicción incorrecta']
+    porcentajes = [porcentaje_unos, porcentaje_ceros]
+    colores = ['#66b3ff', '#ff9999']
+
+    # Crear el gráfico de barras
+    barras = ax.bar(categorias, porcentajes, color=colores)
+
+    # Añadir etiquetas de porcentaje en las barras
+    for barra in barras:
+        altura = barra.get_height()
+        ax.text(barra.get_x() + barra.get_width()/2, altura,
+            f'{altura:.1f}%', ha='center', va='bottom')
+
+    # Personalizar la gráfica
+    ax.set_ylabel('Porcentaje')
+    ax.set_title('Distribución del Feedback')
+    ax.set_ylim(0, 100)  # Establecer el límite del eje y de 0 a 100%
+
+    # Mostrar la gráfica en Streamlit
+    st.pyplot(fig)
+
+# Mostrar los datos numéricos
+    st.write(f"Feedback Positivo: {porcentaje_unos:.1f}%")
+    st.write(f"Feedback Negativo: {porcentaje_ceros:.1f}%")
+
+
+    
 def getResultadoTxt(df,lr='C',score=1):
-    dfaux=df[(df.lr==lr) & (df.score==score)]
-    i=int(np.floor(len(dfaux)*random.random()))
+    dfaux=df[(df.lr==lr) & (df.score==score)].copy()
+    i=int(np.round(len(dfaux)*random.random()))
+    if i>len(dfaux)-1:
+        i=len(dfaux)-1
     return dfaux.iloc[i].texto
 
 def formatContent(textoLargo):
@@ -32,7 +79,7 @@ def formatContent(textoLargo):
 def spinnerWidget(model,tokenizer,text_area):
      with st.spinner('La frase tiene un sentimiento de.... '):    
         resultado=predict(model,tokenizer,text_area)
-        if resultado == 0:
+        if resultado == 0:        
             texto1=getResultadoTxt(df,'L',999)
         elif resultado==1: 
             texto1=getResultadoTxt(df,'R',999)
@@ -49,12 +96,16 @@ def predict(model,tokenizer, input_text):
 
 def printHeader(model,tokenizer):
     
-    st.title('Interface de Usuario para Text Classification')
+    st.title('UNIVERSIDAD EUROPEA MIGUEL DE CERVANTES')
+    st.header('MASTER EN GESTIÓN Y ANÁLISIS DE GRANDES VOLÚMENES DE DATOS: BIG DATA')
+    st.subheader('PROYECTO FIN DE MASTER')
+    st.text('Autor: Victor Gonzalez Laria')
+    st.text('Tutor: Fernando Alonso')
     st.text(
-    '''   A continuación tiene un espacio para escribir un texto de hasta 3000  
-    caracteres nas 500 palabras).  Una vez escrito pulse sobre el botón asociado 
-    y el sistema  predecirá un sentimiento político siginificando 0 izquierda y 
-    1 derecha. En el caso de que el texto sea más largo suba un fichero en formato txt''')
+    '''    A continuación tiene un espacio para escribir un texto de hasta 3000  
+    caracteres (unas 500 palabras).  Una vez escrito, pulse sobre el botón asociado 
+    y el sistema  predecirá un sentimiento político de izquierda o derecha en tono jocoso.
+    En el caso de que el texto sea más largo suba un fichero en formato txt''')
 
     with st.form(key='my_form'):
         #text_input = st.text_input(label='Enter some text',max_chars=600)
@@ -87,10 +138,7 @@ def printHeader(model,tokenizer):
             izquierda=0
             with st.spinner('La frase tiene un sentimiento de.... '):  
                 for contenido in contenidoList:
-                    texto=""
-                    for line in contenido.splitlines():
-                        texto += line + "\n"
-                    resultado=predict(model,tokenizer,texto)   
+                    resultado=predict(model,tokenizer,contenido)   
                     if resultado == 1:
                         derecha+=1
                     elif resultado==0: 
@@ -100,22 +148,62 @@ def printHeader(model,tokenizer):
                 texto+=f'Izquierda={izquierda} Derecha={derecha}'
                 if derecha+izquierda>1: #Se  divide  el  texto en bloques
                     texto="Se muestra el ultimo bloque solamente\n"+texto
-                text_area=st.text_area("Contenido del archivo:", texto, height=300)
+                text_area=st.text_area("Contenido del archivo:", contenido, height=300)
                 if derecha==0:
                     resultadotxt=getResultadoTxt(df,'L',999)
                 elif izquierda==0:
-                    resultadotxt=getResultadoTxt(df,'D',999)
+                    resultadotxt=getResultadoTxt(df,'R',999)
                 else:
                     if derecha>izquierda:
-                        resultadotxt=getResultadoTxt(df,'D',int(derecha/izquierda))
+                        resultado=1
+                        resultadotxt=getResultadoTxt(df,'R',int(derecha/izquierda))
                     elif derecha<izquierda:
+                        resultado=0
                         resultadotxt=getResultadoTxt(df,'L',int(izquierda/derecha))
                     else:
+                        resultado
                         resultadotxt=getResultadoTxt(df)
                 st.success(resultadotxt)
+        st.write("¿Ha sido correcta la predicción?")
+        feedback=st.feedback("thumbs")
+        if feedback is not None:
+            if feedback==1:
+                st.write('Gracias por su feedback')
+                st.write('Nos complace haber acertado')
+                actStatistics(feedback,resultado)
+                plotStatistics()
+            else:
+                feedback==0
+                st.write('Gracias por su feedback')
+                st.write('Lamentamos haber fallado')
+                actStatistics(feedback,resultado)
+                plotStatistics()
+                
+def format():
+    st.markdown("""
+        <style>
+        header {
+            padding: 10px 0;  /* Ajusta el padding superior e inferior */
+            }
+            .stApp {
+                 margin-top: -20px;  /* Ajusta el margen superior si es necesario */
+            }
+        h1 {
+            font-size: 24px;  /* Ajusta el tamaño del título (h1) */
+        }
+        h2 {
+            font-size: 18px;  /* Ajusta el tamaño del encabezado (h2) */
+        }
+        h3 {
+            font-size: 16px;  /* Ajusta el tamaño del encabezado (h3) */
+        }
+        body {
+            width:1200px;
+        }
+        </style>
+""", unsafe_allow_html=True)
 
-
-
+format()        
 f1='./modelorob.pth'
 modelo=torch.load(f1,map_location=torch.device('cpu'),weights_only=False)
 #modelo=torch.load(f1,map_location=torch.device('cpu'))

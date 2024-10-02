@@ -1,5 +1,4 @@
 torch
 transformers
 openpyxl
-pandas
-numpy
+
