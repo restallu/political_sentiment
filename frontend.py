@@ -111,8 +111,8 @@ def printHeader(model,tokenizer):
     El sistema evalúa el texto propuesto 'per se'. No califica de manera genérica
     al hablante o autor de ese comentario. La respuesta se muestra en tono informal.
     En el caso de que el texto sea más largo de 3000 caracteres, deberá subir
-    fichero en formato txt. El sistema lo troceará, lo evaluará y decidirá por el 
-    sentimiento predominante entre las diferntes partes del texto. Finalmente dispone
+    fichero en formato txt. El sistema lo troceará, evaluará cada trozo por separado
+    y decidirá cual es el sentimiento predominante del texto. Finalmente dispone
     de la opción de evaluar la respuesta que le da el sisteme''')
 
     with st.form(key='my_form'):
