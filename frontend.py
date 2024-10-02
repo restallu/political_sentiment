@@ -103,11 +103,17 @@ def printHeader(model,tokenizer):
     st.subheader('PROYECTO FIN DE MASTER')
     st.text('Autor: Victor Gonzalez Laria')
     st.text('Tutor: Fernando Alonso')
+    st.link_button("Read Me","https://github.com/restallu/political_sentiment/blob/main/README.md")
     st.text(
     '''    A continuación tiene un espacio para escribir un texto de hasta 3000  
     caracteres (unas 500 palabras).  Una vez escrito, pulse sobre el botón asociado 
-    y el sistema  predecirá un sentimiento político de izquierda o derecha en tono jocoso.
-    En el caso de que el texto sea más largo suba un fichero en formato txt''')
+    y el sistema predecirá un sentimiento o tendencia política de ese texto.
+    El sistema evalúa el texto propuesto 'per se'. No califica de manera genérica
+    al hablante o autor de ese comentario. La respuesta se muestra en tono informal.
+    En el caso de que el texto sea más largo de 3000 caracteres, deberá subir
+    fichero en formato txt. El sistema lo troceará, lo evaluará y decidirá por el 
+    sentimiento predominante entre las diferntes partes del texto. Finalmente dispone
+    de la opción de evaluar la respuesta que le da el sisteme''')
 
     with st.form(key='my_form'):
         #text_input = st.text_input(label='Enter some text',max_chars=600)
