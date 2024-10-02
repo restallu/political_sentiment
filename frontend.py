@@ -18,7 +18,7 @@ def actStatistics(feedback,resultado):
         f.write(str(feedback)+','+str(resultado)+'\n')
         f.close()
         
-def plotStatistics():
+def plotStatistics1():
     df=pd.read_csv('respuestas.txt')
     df.columns=['feedback','resultado']
     # Calcular los porcentajes
@@ -54,6 +54,47 @@ def plotStatistics():
 # Mostrar los datos numéricos
     st.write(f"Feedback Positivo: {porcentaje_unos:.1f}%")
     st.write(f"Feedback Negativo: {porcentaje_ceros:.1f}%")
+    
+def plotStatistics2():
+    df=pd.read_csv('respuestas.txt')
+    df.columns=['feedback','resultado']
+    # Calcular los porcentajes
+    df=df[df.feedback==1]
+    total_aciertos = len(df)
+    total_aciertos_der=df.resultado.sum()
+    total_aciertos_izq=total_aciertos-total_aciertos_der
+    porcentaje_aciertos_d=100*total_aciertos_der/total_aciertos
+    porcentaje_aciertos_i=100*total_aciertos_izq/total_aciertos
+
+    # Crear la gráfica
+    fig, ax = plt.subplots(figsize=(6, 3))
+
+    # Datos para la gráfica
+    categorias = ['% Aciertos Derecha', '% Aciertos Izq']
+    porcentajes = [porcentaje_aciertos_d, porcentaje_aciertos_i]
+    colores = ['#66b3ff', '#ff9999']
+
+    # Crear el gráfico de barras
+    barras = ax.bar(categorias, porcentajes, color=colores)
+
+    # Añadir etiquetas de porcentaje en las barras
+    for barra in barras:
+        altura = barra.get_height()
+        ax.text(barra.get_x() + barra.get_width()/2, altura,
+            f'{altura:.1f}%', ha='center', va='bottom')
+
+    # Personalizar la gráfica
+    ax.set_ylabel('Porcentaje')
+    ax.set_title('% Aciertos por categoría')
+    ax.set_ylim(0, 100)  # Establecer el límite del eje y de 0 a 100%
+
+    # Mostrar la gráfica en Streamlit
+    st.pyplot(fig)
+
+# Mostrar los datos numéricos
+    st.write(f"Aciertos Derecha: {porcentaje_aciertos_d:.1f}%")
+    st.write(f"Aciertos Izquierda: {porcentaje_aciertos_i:.1f}%")
+
 
 
     
@@ -162,9 +203,13 @@ def printHeader(model,tokenizer):
                         texto="Se muestra el ultimo bloque solamente\n"+texto
                     text_area=st.text_area("Contenido del archivo:", contenido, height=300)
                     if derecha==0:
+                        resultado=0
                         resultadotxt=getResultadoTxt(df,'L',999)
+                        resultadotxt+='   IZQUIERDA'
                     elif izquierda==0:
+                        resultado=1
                         resultadotxt=getResultadoTxt(df,'R',999)
+                        resultadotxt+='   DERECHA'
                     else:
                         if derecha>izquierda:
                             resultado=1
@@ -183,16 +228,16 @@ def printHeader(model,tokenizer):
                 feedback=st.feedback("thumbs")
                 if feedback is not None:
                     if feedback==1:
-                        st.write('Gracias por su feedback')
-                        st.write('Nos complace haber acertado')
+                        st.write('Gracias por su feedback. Nos complace haber acertado')
                         actStatistics(feedback,resultado)
-                        plotStatistics()
+                        plotStatistics1()
+                        plotStatistics2()
                     else:
                         feedback==0
-                        st.write('Gracias por su feedback')
-                        st.write('Lamentamos haber fallado')
+                        st.write('Gracias por su feedback. Lamentamos haber fallado')
                         actStatistics(feedback,resultado)
-                        plotStatistics()
+                        plotStatistics1()
+                        plotStatistics2()
                     
             else:   #if contenido
                 st.text('Debe subir un fichero que tenga contenido')
