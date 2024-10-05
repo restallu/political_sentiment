@@ -1,3 +1,7 @@
+#####  FRONTEND DE USUARIO DE EVALUACIÓN DEL MODELO  ###############
+#####  DE ANÁLISIS DE SENTIMIENTO EN EL LENGUAJE POLÍTICO ##########
+####################################################################
+####################################################################
 import streamlit as st 
 import torch
 import time 
@@ -18,7 +22,12 @@ def actStatistics(feedback,resultado):
     with open("respuestas.txt",'a') as f:
         f.write(str(feedback)+','+str(resultado)+'\n')
         f.close()
-        
+#######################################################################
+# Esta y la siguiente se encargan de dibujar las graficas:
+# Gráfica 1: Muesta porcentaje de aciertos y fallos globales en %
+# Gráfica 2: De entre los acertados se muestran lo de cada categoria en %
+##########################################################################
+
 def plotStatistics1():
     df=pd.read_csv('respuestas.txt')
     df.columns=['feedback','resultado']
@@ -97,14 +106,22 @@ def plotStatistics2():
     st.write(f"Aciertos Izquierda: {porcentaje_aciertos_i:.1f}%")
 
 
-
-    
+# ##########################################
+# Recupera el texto del resultado del modelo 
+# a partir del fichero frases.xlsx
+############################################
+ 
 def getResultadoTxt(df,lr='C',score=1):
     dfaux=df[(df.lr==lr) & (df.score==score)].copy()
     i=int(np.round(len(dfaux)*random.random()))
     if i>len(dfaux)-1:
         i=len(dfaux)-1
     return dfaux.iloc[i].texto
+
+##########################################################################
+# Recibe un parámetro de entrada que es una cadena de texto de tipo String 
+# y devuelve una lista de cadenas de tamaño MAX_SEQ
+##########################################################################
 
 def formatContent(textoLargo):
     textoLargoWords=textoLargo.split()
@@ -115,7 +132,11 @@ def formatContent(textoLargo):
     if len(textoLargoWords)>MAX_SEQ*PCMIN:
         textoLargoLista.append(' '.join(textoLargoWords))
     return textoLargoLista
-    
+ 
+ ################################################################
+# Cuando el usuario introduce un texto se llama a esta función 
+# que devuelve la predicción mientras ejecuta un spinner de espera
+##################################################################   
     
 def spinnerWidget(model,tokenizer,text_area):
      with st.spinner('La frase tiene un sentimiento de.... '):    
@@ -131,6 +152,10 @@ def spinnerWidget(model,tokenizer,text_area):
             texto1+='    CENTRO'
         st.success(texto1)
 
+##############################################################
+# Ejecuta el algoritmo de prediccion
+############################################################
+
 def predict(model,tokenizer, input_text):
     inputs = tokenizer(input_text, return_tensors="pt", padding='max_length', truncation=True,max_length=MAX_SEQ)
     outputs = model(**inputs)
@@ -138,7 +163,10 @@ def predict(model,tokenizer, input_text):
     _, preds = torch.max(logits, 1)
     return preds.item()
 
-def printHeader(model,tokenizer):
+#########################################################################################################
+# Dibujan el interface de usuario y ejecuta la logica del interface haciendo las llamadas correspondientes
+###########################################################################################################
+def printStaticHeader():
     st.image("Logo_UEMC.png")
     st.title('UNIVERSIDAD EUROPEA MIGUEL DE CERVANTES')
     st.header('MASTER EN GESTIÓN Y ANÁLISIS DE GRANDES VOLÚMENES DE DATOS: BIG DATA')
@@ -155,10 +183,11 @@ def printHeader(model,tokenizer):
     En el caso de que el texto sea más largo de 3000 caracteres, deberá subir
     fichero en formato txt. El sistema lo troceará, evaluará cada trozo por separado
     y decidirá cual es el sentimiento predominante del texto. Finalmente dispone
-    de la opción de evaluar la respuesta que le da el sisteme''')
-
+    de la opción de evaluar la respuesta que le da el sistema''')
+    
+def printHeader(model,tokenizer):
+    printStaticHeader()
     with st.form(key='my_form'):
-        #text_input = st.text_input(label='Enter some text',max_chars=600)
         text_area= st.text_area (
             label="Entre aqui el texto:",
             height=150,
