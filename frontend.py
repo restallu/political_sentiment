@@ -353,6 +353,8 @@ f1 = basePath / 'ROBERTA_MP'
 f2 = basePath / 'ROBERTA_TP'
 
 # Declare modelo as a global variable at the module level
+
+
 global modelo
 modelo = None
 loaded_model = False
