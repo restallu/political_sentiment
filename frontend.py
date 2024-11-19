@@ -368,7 +368,7 @@ def load_model():
             )
             modelo=modelo.to('cpu')
             loaded_model = True
-            st.write('Modelo cargado')
+            #st.write('Modelo cargado')
         except Exception as e:
             st.write(f'Error  {str(e)}')
     else:
