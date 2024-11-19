@@ -368,18 +368,18 @@ def load_model():
             )
             modelo=modelo.to('cpu')
             loaded_model = True
-            st.write('Model loaded successfully')
+            st.write('Modelo cargado')
         except Exception as e:
             st.write(f'Error loading model: {str(e)}')
     else:
-        st.write('Model already loaded')
+        st.write('Modelo cargado')
 
 def load_tokenizer():
     try:
         tokenizer = RobertaTokenizer.from_pretrained('./ROBERTA_TP')
         return tokenizer
     except Exception as e:
-        st.write(f'Error loading tokenizer: {str(e)}')
+        st.write(f'Error cargando el tokenizador: {str(e)}')
         return None
 
 # Load the model
@@ -392,4 +392,4 @@ if modelo is not None and tokenizer is not None:
     modelo.eval()
     printHeader(modelo, tokenizer)
 else:
-    st.write("Unable to proceed due to model or tokenizer loading errors")
+    st.write("Imposible seguir por los errores de carga")
