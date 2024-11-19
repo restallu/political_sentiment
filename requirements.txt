@@ -1,0 +1,7 @@
+torch
+transformers
+openpyxl
+matplotlib
+pathlib
+gitpython
+
