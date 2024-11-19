@@ -370,7 +370,7 @@ def load_model():
             loaded_model = True
             st.write('Modelo cargado')
         except Exception as e:
-            st.write(f'Error loading model: {str(e)}')
+            st.write(f'Error  {str(e)}')
     else:
         st.write('Modelo cargado')
 
