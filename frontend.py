@@ -158,6 +158,10 @@ def plotStatistics2():
 # Mostrar los datos numéricos
     st.write(f"Aciertos Derecha: {porcentaje_aciertos_d:.1f}%")
     st.write(f"Aciertos Izquierda: {porcentaje_aciertos_i:.1f}%")
+    st.write(f"Aciertos Izquierda: {total_aciertos_izq}")
+    st.write(f"Errores Izquierda: {total_errores_izq}")
+    st.write(f"Aciertos Derecha: {total_aciertos_der}")
+    st.write(f"Errores Derecha: {total_errores_der}")
     with (basePath / 'respuestas.txt').open('r') as f:
             print("Contenido del archivo:")
             st.write(f.read())
