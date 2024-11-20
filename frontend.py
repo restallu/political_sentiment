@@ -222,6 +222,7 @@ def printStaticHeader():
     st.subheader('PROYECTO FIN DE MASTER')
     st.text('Autor: Victor Gonzalez Laria')
     st.text('Tutor: Fernando Alonso')
+    st.text(torch.__version__)
     st.link_button("Read Me","https://github.com/restallu/political_sentiment/blob/main/README.md")
     st.text(
     '''    A continuación tiene un espacio para escribir un texto de hasta 3000  
