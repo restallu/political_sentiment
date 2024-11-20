@@ -38,21 +38,33 @@ df2=pd.read_excel(basePath / 'frases.xlsx')
 
 def actStatistics(feedback, resultado):
     try:
-        with Path(basePath / 'resultado.txt').open('a') as f:
+        # Usa una ruta absoluta
+        file_path = Path(os.path.abspath(os.path.dirname(__file__))) / 'respuestas.txt'
+        
+        with file_path.open('a') as f:
             f.write(f"{feedback},{resultado}\n")
             f.flush()
             os.fsync(f.fileno())
         
         # Verificar el contenido del archivo
-        with (basePath / 'resultado.txt').open('r') as f:
-            st.write("Contenido")
-            st.write(f.read())
-            st.write(basePath)
+        with file_path.open('r') as f:
+            content = f.read()
+            st.write("Contenido del archivo:")
+            st.write(content)
+            st.write(f"Ruta del archivo: {file_path}")
+        
+        # Verificar si el archivo existe y su tamaño
+        if file_path.exists():
+            st.write(f"El archivo existe y su tamaño es: {file_path.stat().st_size} bytes")
+        else:
+            st.write("El archivo no existe")
+            
     except IOError as e:
-        print(f'Error de E/S grabando datos: {e}')
+        st.error(f'Error de E/S grabando datos: {e}')
         sys.exit(1)
+        
     except Exception as e:
-        print(f'Excepción inesperada grabando datos: {e}')
+        st.error(f'Excepción inesperada grabando datos: {e}')
         sys.exit(1)
     
 #######################################################################
@@ -105,9 +117,9 @@ def plotStatistics2():
     df=df[df.feedback==1]
     total_aciertos = len(df)
     total_aciertos_der=df[(df.feedback==1)&(df.resultado==1)].shape[0]
-    total_errores_der=df[(df.feedback==0) & (df.resultado==0)].shape[0]
+    total_errores_der=df[(df.feedback==0) & (df.resultado==1)].shape[0]
     total_aciertos_izq=total_aciertos-total_aciertos_der
-    total_errores_izq=df[(df.feedback==0) & (df.resultado==1)].shape[0]
+    total_errores_izq=df[(df.feedback==0) & (df.resultado==0)].shape[0]
     if (total_aciertos_der+total_errores_der)!=0:
         porcentaje_aciertos_d=100*total_aciertos_der/(total_aciertos_der+total_errores_der)
     else:
