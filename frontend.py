@@ -212,6 +212,7 @@ def spinnerWidget(model,tokenizer,text_area):
             texto1=getResultadoTxt(df2)
             texto1+='    CENTRO'
         st.success(texto1)
+        implementarFeedback(resultado)
 
 ##############################################################
 # Ejecuta el algoritmo de prediccion
@@ -252,6 +253,26 @@ def printStaticHeader():
     y decidirá cual es el sentimiento predominante del texto. Finalmente dispone
     de la opción de evaluar la respuesta que le da el sistema''')
     
+def implementarFeedback(resultado) :
+    st.write("¿Ha sido correcta la predicción?")
+    feedback=st.feedback("thumbs")
+    if feedback is not None:
+        if feedback==1:
+            st.write('Gracias por su feedback. Nos complace haber acertado')
+            #st.write(f'feedback {feedback} resultado {resultado}')
+            #st.write(get_git_root(RESPUESTAS))
+            actStatistics(feedback,resultado)
+            plotStatistics1()
+            plotStatistics2()
+        else:
+            feedback==0
+            st.write('Gracias por su feedback. Lamentamos haber fallado')
+            #st.write(f'feedback {feedback} resultado {resultado}')
+            #st.write(get_git_root(RESPUESTAS))
+            actStatistics(feedback,resultado)
+            plotStatistics1()
+            plotStatistics2()     
+            
 def printHeader(model,tokenizer):
     printStaticHeader()
     with st.form(key='my_form'):
@@ -320,25 +341,8 @@ def printHeader(model,tokenizer):
                             resultadotxt=getResultadoTxt(df2)
                             resultadotxt+='   CENTRO'
                     st.success(resultadotxt)
-           
-                st.write("¿Ha sido correcta la predicción?")
-                feedback=st.feedback("thumbs")
-                if feedback is not None:
-                    if feedback==1:
-                        st.write('Gracias por su feedback. Nos complace haber acertado')
-                        #st.write(f'feedback {feedback} resultado {resultado}')
-                        #st.write(get_git_root(RESPUESTAS))
-                        actStatistics(feedback,resultado)
-                        plotStatistics1()
-                        plotStatistics2()
-                    else:
-                        feedback==0
-                        st.write('Gracias por su feedback. Lamentamos haber fallado')
-                        #st.write(f'feedback {feedback} resultado {resultado}')
-                        #st.write(get_git_root(RESPUESTAS))
-                        actStatistics(feedback,resultado)
-                        plotStatistics1()
-                        plotStatistics2()
+                    implementarFeedback(resultado)
+               
                     
             else:   #if contenido
                 st.text('Debe subir un fichero que tenga contenido')
