@@ -46,6 +46,7 @@ def actStatistics(feedback, resultado):
         with (basePath / 'resultado.txt').open('r') as f:
             st.write("Contenido")
             st.write(f.read())
+            st.write(basePath)
     except IOError as e:
         print(f'Error de E/S grabando datos: {e}')
         sys.exit(1)
