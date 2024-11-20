@@ -49,15 +49,15 @@ def actStatistics(feedback, resultado):
         # Verificar el contenido del archivo
         with file_path.open('r') as f:
             content = f.read()
-            st.write("Contenido del archivo:")
+            #st.write("Contenido del archivo:")
             st.write(content)
-            st.write(f"Ruta del archivo: {file_path}")
+            #st.write(f"Ruta del archivo: {file_path}")
         
         # Verificar si el archivo existe y su tamaño
-        if file_path.exists():
-            st.write(f"El archivo existe y su tamaño es: {file_path.stat().st_size} bytes")
-        else:
-            st.write("El archivo no existe")
+        # if file_path.exists():
+            # st.write(f"El archivo existe y su tamaño es: {file_path.stat().st_size} bytes")
+        # else:
+            # st.write("El archivo no existe")
             
     except IOError as e:
         st.error(f'Error de E/S grabando datos: {e}')
