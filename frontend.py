@@ -326,7 +326,7 @@ def printHeader(model,tokenizer):
                 if feedback is not None:
                     if feedback==1:
                         st.write('Gracias por su feedback. Nos complace haber acertado')
-                        st.write(f'feedback {feedback} resultado {resultado}')
+                        #st.write(f'feedback {feedback} resultado {resultado}')
                         #st.write(get_git_root(RESPUESTAS))
                         actStatistics(feedback,resultado)
                         plotStatistics1()
@@ -334,7 +334,7 @@ def printHeader(model,tokenizer):
                     else:
                         feedback==0
                         st.write('Gracias por su feedback. Lamentamos haber fallado')
-                        st.write(f'feedback {feedback} resultado {resultado}')
+                        #st.write(f'feedback {feedback} resultado {resultado}')
                         #st.write(get_git_root(RESPUESTAS))
                         actStatistics(feedback,resultado)
                         plotStatistics1()
