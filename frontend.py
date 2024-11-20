@@ -44,7 +44,7 @@ def actStatistics(feedback, resultado):
         
         # Verificar el contenido del archivo
         with (basePath / 'resultado.txt').open('r') as f:
-            st.write("Contenido del archivo:")
+            st.write("Contenido")
             st.write(f.read())
     except IOError as e:
         print(f'Error de E/S grabando datos: {e}')
