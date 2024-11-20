@@ -233,7 +233,7 @@ def predict(model,tokenizer, input_text):
 ###########################################################################################################
 def printStaticHeader():
     st.image("Logo_UEMC.png")
-    st.title('La predicción esta ok...Las gráficas de feedback están bajo corrección')
+    #st.title('La predicción esta ok...Las gráficas de feedback están bajo corrección')
     st.title('UNIVERSIDAD EUROPEA MIGUEL DE CERVANTES')
     st.header('MASTER EN GESTIÓN Y ANÁLISIS DE GRANDES VOLÚMENES DE DATOS: BIG DATA')
     st.subheader('PROYECTO FIN DE MASTER')
