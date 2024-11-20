@@ -47,10 +47,10 @@ def actStatistics(feedback, resultado):
             os.fsync(f.fileno())
         
         # Verificar el contenido del archivo
-        with file_path.open('r') as f:
-            content = f.read()
+       # with file_path.open('r') as f:
+            #content = f.read()
             #st.write("Contenido del archivo:")
-            st.write(content)
+            #st.write(content)
             #st.write(f"Ruta del archivo: {file_path}")
         
         # Verificar si el archivo existe y su tamaño
