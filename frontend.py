@@ -41,6 +41,7 @@ def actStatistics(feedback, resultado):
         with Path(basePath / 'resultado.txt').open('a') as f:
             f.write(f"{feedback},{resultado}\n")
             f.flush()
+            os.fsync(f.fileno())
         
         # Verificar el contenido del archivo
         with (basePath / 'resultado.txt').open('r') as f:
