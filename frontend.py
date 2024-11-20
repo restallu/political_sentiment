@@ -203,13 +203,13 @@ def spinnerWidget(model,tokenizer,text_area):
      with st.spinner('La frase tiene un sentimiento de.... '):    
         resultado=predict(model,tokenizer,text_area)
         if resultado == 0:        
-            texto1=getResultadoTxt(df,'L',999)
+            texto1=getResultadoTxt(df2,'L',999)
             texto1+='    IZQUIERDA'
         elif resultado==1: 
-            texto1=getResultadoTxt(df,'R',999)
+            texto1=getResultadoTxt(df2,'R',999)
             texto1+='    DERECHA'
         else:
-            texto1=getResultadoTxt(df)
+            texto1=getResultadoTxt(df2)
             texto1+='    CENTRO'
         st.success(texto1)
 
