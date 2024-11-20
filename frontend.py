@@ -114,8 +114,8 @@ def plotStatistics2():
     df=pd.read_csv(basePath / 'respuestas.txt')
     df.columns=['feedback','resultado']
     # Calcular los porcentajes
-    df=df[df.feedback==1]
-    total_aciertos = len(df)
+    #df=df[df.feedback==1]
+    total_aciertos = len(df[df.feedback==1])
     total_aciertos_der=df[(df.feedback==1)&(df.resultado==1)].shape[0]
     total_errores_der=df[(df.feedback==0) & (df.resultado==1)].shape[0]
     total_aciertos_izq=total_aciertos-total_aciertos_der
