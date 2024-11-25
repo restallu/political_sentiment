@@ -38,10 +38,10 @@ Caso 1 (valores de accuracy para seq entrada sin procesamiento)
 
 |Modelo/secuencia|125|250|
 |----------------|----|---|
-|BertClassifier|0,8223|0.8524|
-|RobertaClassifier|0,879|**0.9037**|
-|DistilbertClassifier|0.8664|
-|GPT2Classifier|0.775|0.7269|
+|BertClassifier|0.8223|0.8524|
+|RobertaClassifier|0.9041|**0.9041**|
+|DistilbertClassifier|0.8091|0.8635|
+|GPT2Classifier|0.7259|0.7269|
 
 Caso 2 (valores de accuracy para seq de entrada con procesamiento)
 
@@ -50,7 +50,7 @@ Caso 2 (valores de accuracy para seq de entrada con procesamiento)
 |BertClassifier|0.8172|0.8708|
 |RobertaClassifier|0.8966|**0.9041**|
 |DistilbertClassifier|0.8552|0.8524|
-|GPT2Classifier|0.7138|0.7774|0.7823|
+|GPT2Classifier|0.7138|0.7823|
 
 
   * Todos los datos son correspondientes al dataset de test
