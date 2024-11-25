@@ -6,7 +6,7 @@ import streamlit as st
 import git
 import torch
 import time 
-MAX_SEQ=400 
+MAX_SEQ=250
 PCMIN=0.4 #Porcentaje mínimo de la seq_max para que sea analizado
 import openpyxl
 import pandas as pd
