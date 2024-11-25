@@ -17,7 +17,7 @@ El etiquetado de los datos ha sido de tipo binario (0-> Izquierda y 1-> Derecha)
 
 ### <font color=gree>Tratamiento de los datos</font>
 
-El tamaño inicial de los datos que aliementan el sistema puede variar entre varios cientos de palabras  en el caso de artículos cortos hasta varias decenas de miles en el caso de los discursos políticos. Por eso se ha dividio inicialmente los datos en paquetes (ficheros) de 500 palabras cada uno (aprox 3Kb). De esta manera resulta una cifra de algo más de 1000 documentos siendo la relacion izquierda derecha del orden  de 51% 49 % resultando así un set de pruebas equilibrado.
+El tamaño inicial de los datos que aliementan el sistema puede variar entre varios cientos de palabras  en el caso de artículos cortos hasta varias decenas de miles en el caso de los discursos políticos. Por eso se ha dividido inicialmente los datos en paquetes (ficheros) de 500 palabras cada uno (aprox 3Kb). De esta manera resulta una cifra de algo más de 1000 documentos siendo la relacion izquierda derecha del orden  de 51% 49 % resultando así un set de pruebas equilibrado.
 
 Sobre este conjunto de datos se aplican dos tipos de procesamientos previos al LLM:
 1. Se pasan a minusculas y se eliminan signos de puntuación
@@ -30,27 +30,27 @@ Para cada uno de estos sets de datos se les  aplica 4 tipos de algoritmos:
 3. RoBERTa más capa de clasificación integrada
 4. GPT2 mas capa de clasificación
 
-Y cada simulacion de las anteriores se realiza para 5 tamaños de secuencia de entrada:100,200,300,400,y 500 palabras.
+Y cada simulacion de las anteriores se realiza para 2 tamaños de secuencia de entrada: 125 y 250
 
 El resumen de resultados para el valor de accuracy el siguiente:
 
-Caso 1
+Caso 1 (valores de accuracy para seq entrada sin procesamiento)
 
-|Modelo/secuencia|100|200|300|400|500|
-|----------------|----|---|---|---|---|
-|Bert|0,7610|0.7702|0.8852|0.8295|0.4792|
-|RobertaClassifier|0.7443|0.8056|0.8333|<font color="red">**0.9129**</font>|0.8958|
-|DistilbertClassifier|0.8139|0.8321|0.8306|0.8139|0.8321|
-|GPT2Classifier|0.8018|0.8157|0.7778|0.7727|0.7778|
+|Modelo/secuencia|125|250|
+|----------------|----|---|
+|BertClassifier|0,8223|0.8524|
+|RobertaClassifier|0,879|**0.9037**|
+|DistilbertClassifier|0.8664|
+|GPT2Classifier|0.775|0.7269|
 
-Caso 2
+Caso 2 (valores de accuracy para seq de entrada con procesamiento)
 
-|Modelo/secuencia|100|200|300|400|500|
-|----------------|----|---|---|---|---|
-|BertClassifier|0.8161|0.8189|0.5486|0.8239|0.5211|
-|RobertaClassifier|0.5693|0.4642|0.5486|0.8732|<font color=pink>**0.9225**</font>
-|DistilbertClassifier|0.8514|0.8489|0.8766|0.8564|0.8514|
-|GPT2Classifier|0.8186|0.7774|0.8056|0.7324|0.6972|
+|Modelo/secuencia|125|250|
+|----------------|----|---|
+|BertClassifier|0.8172|0.8708|
+|RobertaClassifier|0.8966|**0.9041**|
+|DistilbertClassifier|0.8552|0.8524|
+|GPT2Classifier|0.7138|0.7774|0.7823|
 
 
   * Todos los datos son correspondientes al dataset de test
