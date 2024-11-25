@@ -38,18 +38,18 @@ Caso 1 (valores de accuracy para seq entrada sin procesamiento)
 
 |Modelo/secuencia|125|250|
 |----------------|----|---|
-|BertClassifier|0.8223|0.8524|
-|RobertaClassifier|0.9041|**0.9041**|
-|DistilbertClassifier|0.8091|0.8635|
+|BertClassifier|0.8745|0.8524|
+|RobertaClassifier|0.9225|**0.9041**|
+|DistilbertClassifier|0.8745|0.8635|
 |GPT2Classifier|0.7259|0.7269|
 
 Caso 2 (valores de accuracy para seq de entrada con procesamiento)
 
 |Modelo/secuencia|125|250|
 |----------------|----|---|
-|BertClassifier|0.8172|0.8708|
+|BertClassifier|0.8798|0.8708|
 |RobertaClassifier|0.8966|**0.9041**|
-|DistilbertClassifier|0.8552|0.8524|
+|DistilbertClassifier|0.8708|0.8524|
 |GPT2Classifier|0.7138|0.7823|
 
 
@@ -59,6 +59,6 @@ A la vista de los datos anteriores hemos desplegado en github el caso 1 de RoBER
 
 ## <font color=gree>Operativa </font>
 
-La operativa es simple. Podemos o bien copiar y pegar un texto o bien subir un fichero de texto y pulsar submit. En el caso de querer introducir un texto largo (por ejemplo artículo de opinión) lo subiremos como fichero y el sistema lo dividirá en trozos de 400 palabras. Si el remanente final de uno de los trozos es menor de 80 palabras (20% de tamaño máximo) se descarta. Si el resultado de los trozos no es el mismo se selecciona el valor que se repita más veces.
+La operativa es simple. Podemos o bien copiar y pegar un texto o bien subir un fichero de texto y pulsar submit. En el caso de querer introducir un texto largo (por ejemplo artículo de opinión) lo subiremos como fichero y el sistema lo dividirá en trozos de 250 palabras. Si el remanente final de uno de los trozos es menor de 50 palabras (20% de tamaño máximo) se descarta. Si el resultado de los trozos no es el mismo se selecciona el valor que se repita más veces.
 
 [README](https://github.com/restallu/political_sentiment/blob/main/README.md)
