@@ -22,8 +22,8 @@ El etiquetado de los datos ha sido de tipo binario (0-> Izquierda y 1-> Derecha)
 El tamaño inicial de los datos que aliementan el sistema puede variar entre varios cientos de palabras  en el caso de artículos cortos hasta varias decenas de miles en el caso de los discursos políticos. Por eso se ha dividido inicialmente los datos en paquetes (ficheros) de 500 palabras cada uno (aprox 3Kb). De esta manera resulta una cifra de algo más de 1000 documentos siendo la relacion izquierda derecha del orden  de 51% 49 % resultando así un set de pruebas equilibrado.
 
 Sobre este conjunto de datos se aplican dos tipos de procesamientos previos al LLM:
-1. Se pasan a minusculas y se eliminan signos de puntuación
-2. Se procesan segun lo dicho en 1., y además se le eliminan las palabras de uso común (stop words)
+1. Paso a minúsculas y ningún tratamiento adicional
+2. Se procesan segun lo dicho en 1., y además se le eliminan las palabras de uso común (stop words) y puntuación.
 
 Para cada uno de estos sets de datos se les  aplica 4 tipos de algoritmos:
 
