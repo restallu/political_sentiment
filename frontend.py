@@ -240,7 +240,7 @@ def printStaticHeader():
     st.subheader('PROYECTO FIN DE MASTER')
     #st.text(st.__version__)
     #st.link_button("Read Me","https://github.com/restallu/political_sentiment/blob/main/README.md")
-    st.page_link("Read Me","https://github.com/restallu/political_sentiment/blob/main/README.md")
+    st.page_link("https://github.com/restallu/political_sentiment/blob/main/README.md")
     st.text(
     '''    A continuación tiene un espacio para escribir un texto de hasta 3000  
     caracteres (unas 500 palabras).  Una vez escrito, pulse sobre el botón asociado 
