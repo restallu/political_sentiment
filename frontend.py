@@ -238,10 +238,9 @@ def printStaticHeader():
     st.title('UNIVERSIDAD EUROPEA MIGUEL DE CERVANTES')
     st.header('MASTER EN GESTIÓN Y ANÁLISIS DE GRANDES VOLÚMENES DE DATOS: BIG DATA')
     st.subheader('PROYECTO FIN DE MASTER')
-    st.text('Autor: Victor Gonzalez Laria')
-    st.text('Tutor: Fernando Alonso')
     #st.text(st.__version__)
-    st.link_button("Read Me","https://github.com/restallu/political_sentiment/blob/main/README.md")
+    #st.link_button("Read Me","https://github.com/restallu/political_sentiment/blob/main/README.md")
+    st.page_link("Read Me","https://github.com/restallu/political_sentiment/blob/main/README.md")
     st.text(
     '''    A continuación tiene un espacio para escribir un texto de hasta 3000  
     caracteres (unas 500 palabras).  Una vez escrito, pulse sobre el botón asociado 
