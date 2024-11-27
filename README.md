@@ -64,3 +64,5 @@ A la vista de los datos anteriores hemos desplegado en github el caso 1 de RoBER
 La operativa es simple. Podemos o bien copiar y pegar un texto o bien subir un fichero de texto y pulsar submit. En el caso de querer introducir un texto largo (por ejemplo artículo de opinión) lo subiremos como fichero y el sistema lo dividirá en trozos de 250 palabras. Si el remanente final de uno de los trozos es menor de 50 palabras (20% de tamaño máximo) se descarta. Si el resultado de los trozos no es el mismo se selecciona el valor que se repita más veces.
 
 [README](https://github.com/restallu/political_sentiment/blob/main/README.md)
+Acceso a aplicacion web
+https://tfm-political-sentiment.streamlit.app/
