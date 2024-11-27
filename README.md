@@ -55,7 +55,7 @@ Caso 2 (valores de accuracy para seq de entrada con procesamiento)
 
   * Todos los datos son correspondientes al dataset de test
 
-A la vista de los datos anteriores hemos desplegado en github el caso 1 de RoBERTa como clasificador. Esto ha sido así ya que ofrece el mejor valor y (aunque mejora en el caso 2) hemos notado un comportamiento peor en general y más inestable en el caso de preproceso de los datos tipo 2.
+A la vista de los datos anteriores hemos desplegado en github el caso 1 de RoBERTa como clasificador. Esto ha sido así ya que ofrece el mejor valor y (aunque mejora en el caso 2) hemos notado un comportamiento más inestable cuando pre procesamos los datos de entrada.
 
 ## <font color=gree>Operativa </font>
 
