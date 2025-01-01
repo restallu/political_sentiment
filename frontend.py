@@ -12,7 +12,11 @@ import openpyxl
 import pandas as pd
 import random
 import numpy as np
+#import matplotlib
 import matplotlib.pyplot as plt
+#import plotly.graph_objects as go  
+import matplotlib.cm as cm
+from matplotlib.patches import Circle, Wedge, Rectangle
 import os,sys
 from pathlib import Path
 from transformers import RobertaForSequenceClassification,RobertaTokenizer
@@ -166,6 +170,90 @@ def plotStatistics2():
     #        print("Contenido del archivo:")
      #       st.write(f.read())
 
+# #######################################
+#implementarDial: dibuja un indicador con el
+# valor del resultado entre -1 y 1
+#########################################
+
+
+def degree_range(n): 
+    start = np.linspace(0,180,n+1, endpoint=True)[0:-1]
+    end = np.linspace(0,180,n+1, endpoint=True)[1::]
+    mid_points = start + ((end-start)/2.)
+    return np.c_[start, end], mid_points
+
+def rot_text(ang): 
+    rotation = np.degrees(np.radians(ang) * np.pi / np.pi - np.radians(90))
+    return rotation
+
+def implementarDial2(labels,colors,arrow,title): 
+    
+    #checkings
+    
+    N = len(labels)
+    if arrow > N: 
+        raise Exception("\n\nThe category ({}) is greated than \
+        the length\nof the labels ({})".format(arrow, N))
+ 
+    
+    if isinstance(colors, str):
+        cmap = plt.get_cmap(colors, N)
+        cmap = cmap(np.arange(N))
+        colors = cmap[::-1,:].tolist()
+    if isinstance(colors, list): 
+        if len(colors) == N:
+            colors = colors[::-1]
+        else: 
+            raise Exception("\n\nnumber of colors {} not equal \
+            to number of categories{}\n".format(len(colors), N))
+    
+    fig, ax = plt.subplots()
+
+    ang_range, mid_points = degree_range(N)
+
+    labels = labels[::-1]
+    
+
+    patches = []
+    for ang, c in zip(ang_range, colors): 
+        # sectors
+        patches.append(Wedge((0.,0.), .4, *ang, facecolor='w', lw=2))
+        # arcs
+        patches.append(Wedge((0.,0.), .4, *ang, width=0.10, facecolor=c, lw=2, alpha=0.5))
+    
+    for p in patches:
+        ax.add_patch(p)
+
+    for mid, lab in zip(mid_points, labels): 
+
+        ax.text(0.35 * np.cos(np.radians(mid)), 0.35 * np.sin(np.radians(mid)), lab, \
+            horizontalalignment='center', verticalalignment='center', fontsize=12, \
+            fontweight='bold', rotation = rot_text(mid))
+
+    r = Rectangle((-0.4,-0.1),0.8,0.1, facecolor='w', lw=2)
+    ax.add_patch(r)
+    
+    ax.text(0, -0.05, title, horizontalalignment='center', \
+         verticalalignment='center', fontsize=18, fontweight='bold')
+
+
+    pos = mid_points[abs(arrow - N)]
+    
+    ax.arrow(0, 0, 0.225 * np.cos(np.radians(pos)), 0.225 * np.sin(np.radians(pos)), \
+                 width=0.04, head_width=0.09, head_length=0.1, fc='k', ec='k')
+    
+    ax.add_patch(Circle((0, 0), radius=0.02, facecolor='k'))
+    ax.add_patch(Circle((0, 0), radius=0.01, facecolor='w', zorder=11))
+
+    
+    ax.set_frame_on(False)
+    ax.axes.set_xticks([])
+    ax.axes.set_yticks([])
+    ax.axis('equal')
+    plt.tight_layout()
+    return fig
+
+
 
 # ##########################################
 # Recupera el texto del resultado del modelo 
@@ -201,18 +289,18 @@ def formatContent(textoLargo):
     
 def spinnerWidget(model,tokenizer,text_area):
      with st.spinner('La frase tiene un sentimiento de.... '):    
-        resultado=predict(model,tokenizer,text_area)
-        if resultado == 0:        
+        resPred,resClassif=predict(model,tokenizer,text_area)
+        if resClassif == 0:        
             texto1=getResultadoTxt(df2,'L',999)
             texto1+='    IZQUIERDA'
-        elif resultado==1: 
+        elif resClassif==1: 
             texto1=getResultadoTxt(df2,'R',999)
             texto1+='    DERECHA'
         else:
             texto1=getResultadoTxt(df2)
             texto1+='    CENTRO'
         st.success(texto1)
-        implementarFeedback(resultado)
+        implementarFeedback(resClassif)
 
 ##############################################################
 # Ejecuta el algoritmo de prediccion
@@ -223,10 +311,10 @@ def predict(model,tokenizer, input_text):
     outputs = model(**inputs)
     logits = outputs.logits
     logits = logits.squeeze()
-    preds = (torch.sigmoid(logits) > 0.5).float()
-    #st.write('preds',preds)
-    #_, preds = torch.max(logits, 1)
-    return preds.item()
+    #st.write('logits ',logits)
+    pred=(torch.sigmoid(logits)-0.5)*2
+    classif = (torch.sigmoid(logits) > 0.5).float()
+    return pred.item(),classif.item()
 
 
 #########################################################################################################
@@ -271,6 +359,21 @@ def implementarFeedback(resultado) :
             actStatistics(feedback,resultado)
             plotStatistics1()
             plotStatistics2()     
+
+def calculate_arrow(labels,resPred):
+    num_labels=len(labels)
+    step=2/num_labels
+    xant=xact=-1.0 
+    i=0
+    while xact<1:
+        i+=1
+        xact+=step
+        if resPred>=xant and resPred<xact:
+            break
+        else:
+            xant=xact
+    return int(i)
+         
             
 def printHeader(model,tokenizer):
     printStaticHeader()
@@ -307,14 +410,19 @@ def printHeader(model,tokenizer):
                 derecha=0
                 izquierda=0
                 with st.spinner('La frase tiene un sentimiento de.... '):  
+                    prediccion=0
                     for contenido in contenidoList:
-                        resultado=predict(model,tokenizer,contenido)   
-                        if resultado == 1:
+                        resPred,resClassif=predict(model,tokenizer,contenido)   
+                        if resClassif == 1:
                             derecha+=1
-                        elif resultado==0: 
+                        elif resClassif==0: 
                             izquierda+=1
                         else:
                             assert 0
+                        prediccion+=resPred
+                        #st.write('resPred ',resPred)
+                    if len(contenidoList)!=0:
+                        prediccion/=len(contenidoList)
                     texto+=f'Izquierda={izquierda} Derecha={derecha}'
                     if derecha+izquierda>1: #Se  divide  el  texto en bloques
                         texto="Se muestra el ultimo bloque solamente\n"+texto
@@ -340,9 +448,16 @@ def printHeader(model,tokenizer):
                             resultadotxt=getResultadoTxt(df2)
                             resultadotxt+='   CENTRO'
                     st.success(resultadotxt)
+                    #implementarDial1(prediccion)
+                    labels=['IZQUIERDA','CENTRO','DERECHA']
+                    arrow=calculate_arrow(labels,prediccion)
+                    colors=['#4dab6d','#f6ee54','#ee4d55']
+    
+                    #st.write('prediccion ',prediccion)
+                    #st.write('arrow ',arrow)
+                    fig=implementarDial2(labels,colors,arrow,'Posicion ideológica')
+                    st.pyplot(fig)  
                     implementarFeedback(resultado)
-               
-                    
             else:   #if contenido
                 st.text('Debe subir un fichero que tenga contenido')
                 
