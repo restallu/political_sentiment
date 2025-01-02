@@ -12,14 +12,20 @@ import openpyxl
 import pandas as pd
 import random
 import numpy as np
-#import matplotlib
 import matplotlib.pyplot as plt
-#import plotly.graph_objects as go  
 import matplotlib.cm as cm
 from matplotlib.patches import Circle, Wedge, Rectangle
+import matplotlib.patches as patches
 import os,sys
 from pathlib import Path
 from transformers import RobertaForSequenceClassification,RobertaTokenizer
+from matplotlib import gridspec
+import numpy as np
+import math
+from PIL import Image
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+import io
+
 loaded_model=False
   
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
@@ -186,6 +192,73 @@ def rot_text(ang):
     rotation = np.degrees(np.radians(ang) * np.pi / np.pi - np.radians(90))
     return rotation
 
+# function plotting a colored dial
+def dial(color_array, arrow_index, labels, ax):
+    # Create bins to plot (equally sized)
+    size_of_groups=np.ones(len(color_array)*2)
+ 
+    # Create a pieplot, half white, half colored by your color array
+    white_half = np.ones(len(color_array))*.5
+    color_half = color_array
+    color_pallet = np.concatenate([color_half, white_half])
+ 
+    cs=cm.RdYlBu(color_pallet)
+    pie_wedge_collection = ax.pie(size_of_groups, colors=cs, labels=labels)
+ 
+    i=0
+    for pie_wedge in pie_wedge_collection[0]:
+        pie_wedge.set_edgecolor(cm.RdYlBu(color_pallet[i]))
+        i=i+1
+ 
+    # create a white circle to make the pie chart a dial
+    my_circle=plt.Circle( (0,0), 0.3, color='white')
+    ax.add_artist(my_circle)
+
+ 
+    # create the arrow, pointing at specified index
+    arrow_angle = (arrow_index/float(len(color_array)))*3.14159
+    arrow_x = 0.2*math.cos(arrow_angle)
+    arrow_y = 0.2*math.sin(arrow_angle)
+    ax.arrow(0,0,-arrow_x,arrow_y, width=.02, head_width=.05, \
+        head_length=.1, fc='k', ec='k')
+
+
+def runDial(arrow_index):
+    # set your color array and name of figure here:
+
+    dial_colors = np.linspace(0,1,100) # using linspace here as an example
+    figname = 'myDial'
+ 
+    # specify which index you want your arrow to point to
+    
+    # create labels at desired locations
+    # note that the pie plot ploots from right to left
+    labels = [' ']*len(dial_colors)*2
+    labels[5] = 'DERECHA'
+    labels[50] = 'CENTRO'
+    labels[95] = 'IZQUIERDA'
+    # create figure and specify figure name
+    fig, ax = plt.subplots()
+    # make dial plot and save figure
+
+    dial(dial_colors, arrow_index, labels, ax)
+    
+    ax.set_aspect('equal')
+    plt.savefig(figname + '.png', bbox_inches='tight') 
+    
+    
+    # open figure and crop bottom half
+    im = Image.open(figname + '.png')
+    width, height = im.size
+    
+    # crop bottom half of figure
+    # function takes top corner &lt;span                data-mce-type="bookmark"                id="mce_SELREST_start"              data-mce-style="overflow:hidden;line-height:0"              style="overflow:hidden;line-height:0"           &gt;&amp;#65279;&lt;/span&gt;and bottom corner coordinates
+    # of image to keep, (0,0) in python images is the top left corner
+    im = im.crop((0, 0, width, int(height/2.0))).save(figname + '.png')
+
+#
+    return fig
+
 def implementarDial2(labels,colors,arrow,title): 
     
     #checkings
@@ -310,7 +383,7 @@ def predict(model,tokenizer, input_text):
     inputs = tokenizer(input_text, return_tensors="pt", padding='max_length', truncation=True,max_length=MAX_SEQ)
     outputs = model(**inputs)
     logits = outputs.logits
-    logits = logits.squeeze()
+    #logits = logits.squeeze()
     #st.write('logits ',logits)
     pred=(torch.sigmoid(logits)-0.5)*2
     classif = (torch.sigmoid(logits) > 0.5).float()
@@ -374,7 +447,10 @@ def calculate_arrow(labels,resPred):
             xant=xact
     return int(i)
          
-            
+
+    
+    
+                
 def printHeader(model,tokenizer):
     printStaticHeader()
     with st.form(key='my_form'):
@@ -457,6 +533,8 @@ def printHeader(model,tokenizer):
                     #st.write('arrow ',arrow)
                     fig=implementarDial2(labels,colors,arrow,'Posicion ideológica')
                     st.pyplot(fig)  
+                    #fig1=runDial(int(arrow*100))   
+                    #st.pyplot(fig1)              
                     implementarFeedback(resultado)
             else:   #if contenido
                 st.text('Debe subir un fichero que tenga contenido')
