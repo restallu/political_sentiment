@@ -31,6 +31,11 @@ loaded_model=False
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 #Leer excel
 
+def softmax(vec):
+  exponential = np.exp(vec)
+  probabilities = exponential / np.sum(exponential)
+  return probabilities
+
 def get_git_root(path):
 
     git_repo = git.Repo(path, search_parent_directories=True)
@@ -45,6 +50,8 @@ df2=pd.read_excel(basePath / 'frases.xlsx')
 #st.write(f'dirRaiz: {dirRaiz}')
 
 
+def sigmoid(x):
+  return 1 / (1 + math.exp(-x))
 
 def actStatistics(feedback, resultado):
     try:
@@ -384,10 +391,14 @@ def predict(model,tokenizer, input_text):
     outputs = model(**inputs)
     logits = outputs.logits
     #logits = logits.squeeze()
-    #st.write('logits ',logits)
-    pred=(torch.sigmoid(logits)-0.5)*2
-    classif = (torch.sigmoid(logits) > 0.5).float()
-    return pred.item(),classif.item()
+    #st.write('logits ',logits.item())
+    #pred=(torch.sigmoid(logits)-0.5)*2
+    #pred=torch.sigmoid(logits)
+    pred=torch.softmax(logits,dim=1)
+    #classif = (torch.sigmoid(logits) > 0.5).float()
+    classif = (torch.softmax(logits,dim=1) > 0.5).float()
+    #st.write('pred ',pred.item())
+    return logits.item(),pred.item(),classif.item()
 
 
 #########################################################################################################
@@ -417,34 +428,29 @@ def implementarFeedback(resultado) :
     st.write("¿Ha sido correcta la predicción?")
     feedback=st.feedback("thumbs")
     if feedback is not None:
-        if feedback==1:
-            st.write('Gracias por su feedback. Nos complace haber acertado')
-            #st.write(f'feedback {feedback} resultado {resultado}')
-            #st.write(get_git_root(RESPUESTAS))
-            actStatistics(feedback,resultado)
-            plotStatistics1()
-            plotStatistics2()
+        if feedback==-1:
+            st.write('Sentimiento=CENTRO. NO se actualizan las estadísticas')
         else:
-            feedback==0
-            st.write('Gracias por su feedback. Lamentamos haber fallado')
-            #st.write(f'feedback {feedback} resultado {resultado}')
-            #st.write(get_git_root(RESPUESTAS))
+            if feedback==1:
+                st.write('Gracias por su feedback. Nos complace haber acertado')
+            elif feedback==0:
+                st.write('Gracias por su feedback. Lamentamos haber fallado')
             actStatistics(feedback,resultado)
             plotStatistics1()
             plotStatistics2()     
 
 def calculate_arrow(labels,resPred):
     num_labels=len(labels)
-    step=2/num_labels
-    xant=xact=-1.0 
+    step=1/num_labels
+    xant=xact=0
     i=0
     while xact<1:
-        i+=1
         xact+=step
         if resPred>=xant and resPred<xact:
             break
         else:
             xant=xact
+        i+=1
     return int(i)
          
 
@@ -487,18 +493,27 @@ def printHeader(model,tokenizer):
                 izquierda=0
                 with st.spinner('La frase tiene un sentimiento de.... '):  
                     prediccion=0
+                    prediccion_suma=0
+                    total_logits=0
                     for contenido in contenidoList:
-                        resPred,resClassif=predict(model,tokenizer,contenido)   
+                        logits,resPred,resClassif=predict(model,tokenizer,contenido)   
                         if resClassif == 1:
                             derecha+=1
                         elif resClassif==0: 
                             izquierda+=1
                         else:
                             assert 0
-                        prediccion+=resPred
+                        prediccion_suma+=resPred
+                        total_logits+=logits
                         #st.write('resPred ',resPred)
                     if len(contenidoList)!=0:
-                        prediccion/=len(contenidoList)
+                        prediccion_suma/=len(contenidoList)
+                        total_logits/=len(contenidoList)
+                        st.write('prediccion suma ',prediccion_suma)
+                        st.write('total logits ',total_logits)
+                        #prediccion=sigmoid(total_logits)
+                        prediccion=softmax(total_logits)
+                        st.write('prediccion ',prediccion)
                     texto+=f'Izquierda={izquierda} Derecha={derecha}'
                     if derecha+izquierda>1: #Se  divide  el  texto en bloques
                         texto="Se muestra el ultimo bloque solamente\n"+texto
@@ -521,14 +536,19 @@ def printHeader(model,tokenizer):
                             resultadotxt=getResultadoTxt(df2,'L',int(izquierda/derecha))
                             resultadotxt+='   IZQUIERDA'
                         else:
+                            resultado=-1
                             resultadotxt=getResultadoTxt(df2)
                             resultadotxt+='   CENTRO'
                     st.success(resultadotxt)
                     #implementarDial1(prediccion)
-                    labels=['IZQUIERDA','CENTRO','DERECHA']
+                    labels=['EXT-IZQ','IZQ','CTRO-IZQ','CENTRO','CTRO-DER','DER','EXT-DER']
+                    #arrow_suma=calculate_arrow(labels,prediccion_suma)
                     arrow=calculate_arrow(labels,prediccion)
-                    colors=['#4dab6d','#f6ee54','#ee4d55']
-    
+                    st.write('arrow ',arrow)
+                    st.write('Haciendo una interpolación lineal en cada espacio ideológico su sentimiento político es:',labels[arrow-1])
+                    colors=["#138C40","#2bad4e","#f2a529","#f6ee54", "#f2a529","#f25829",'#D61F07']
+                    #st.write('prediccion suma ',prediccion_suma)
+                    #st.write('arrow_suma ',arrow_suma)
                     #st.write('prediccion ',prediccion)
                     #st.write('arrow ',arrow)
                     fig=implementarDial2(labels,colors,arrow,'Posicion ideológica')
